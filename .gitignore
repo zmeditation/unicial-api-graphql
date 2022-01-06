@@ -8,6 +8,9 @@ yarn-error.log*
 # npmjs
 /dist
 
+# Mockup data
+/api-samples
+
 # Runtime data
 pids
 *.pid
