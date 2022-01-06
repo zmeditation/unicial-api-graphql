@@ -1,0 +1,40 @@
+{
+  "name": "Unicial NodeJs backend api server",
+  "version": "1.0.0",
+  "description": "Unicial NodeJs backend api server",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unicial/unicial-api-graphql.git"
+  },
+  "author": "ultimatecourses",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/unicial/unicial-api-graphql/issues"
+  },
+  "homepage": "https://github.com/unicial/unicial-api-graphql#readme",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "preserve": "npm run build",
+    "serve": "cross-env NODE_ENV=development concurrently \"tsc --watch\" \"nodemon -q dist/index.js\"",
+    "prestart": "npm run build",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/body-parser": "^1.19.2",
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.8",
+    "body-parser": "^1.19.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "helmet": "^5.0.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.5.4"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "nodemon": "^2.0.15"
+  }
+}
