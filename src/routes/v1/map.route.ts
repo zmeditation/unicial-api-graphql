@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import MapController from '@controllers/map.controller';
+import MapController from '@controllers/api/v1/map.controller';
 import { Routes } from '@interfaces/routes.interface';
 
 class MapRouter implements Routes {
