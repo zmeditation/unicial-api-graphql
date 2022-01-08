@@ -5,11 +5,10 @@ exports.getMap = async (req, res) => {
     var mapData = await Map.find({}, { _id: 0, __v: 0 }).lean();
     var data = {};
     for (let i = 0; i < mapData.length; i++) {
-      const { id, ...rest } = mapData[i];
-      data[mapData[i].id] = rest;
+      data[mapData[i].id] = mapData[i];
     }
-    return res.json({ success: true, data: data, error: "" });
+    return res.json({ ok: true, data: data, error: "" });
   } catch (err) {
-    return res.json({ success: false, error: err.message });
+    return res.json({ ok: false, error: err.message });
   }
 };
