@@ -18,9 +18,9 @@ var MapSchema = new mongoose.Schema({
     ],
     default: TILE_TYPES.UNOWNED,
   },
-  top: { type: Boolean, required: true, default: true },
-  left: { type: Boolean, required: true, default: true },
-  topLeft: { type: Boolean, required: true, default: true },
+  top: { type: Boolean, required: true, default: false }, // false: border exist, true: no-border for top & bottom
+  left: { type: Boolean, required: true, default: false }, // false: border exist, true: no-border left & right
+  topLeft: { type: Boolean, required: true, default: false }, // false: border exist, true: no-border vertex
   updatedAt: { type: Number, required: true },
   name: { type: String },
   owner: { type: String },

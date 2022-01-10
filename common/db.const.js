@@ -8,8 +8,8 @@ exports.TILE_TYPES = {
 
 exports.INIT_MAP_TO_TYPE = {
   "-1": "unowned",
-  33713: "road",
-  70536: "district",
+  73579: "road",
+  75612: "district",
 };
 
-exports.INIT_MAP_TO_TYPE_KEYS = ["-1", "33713", "70536"];
+exports.INIT_MAP_TO_TYPE_KEYS = ["-1", "73579", "75612"];
