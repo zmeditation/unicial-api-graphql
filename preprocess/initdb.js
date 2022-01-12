@@ -12,7 +12,7 @@ async function initMap() {
   if (mapCounts > 0) return;
 
   var data = fs
-    .readFileSync(path.join(__dirname, "../data/Orchard.csv"))
+    .readFileSync(path.join(__dirname, "../data/brasbasah.csv"))
     .toString() // convert Buffer to string
     .split("\n") // split string to lines
     .map((e) => e.trim()) // remove white spaces for each line
