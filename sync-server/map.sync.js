@@ -1,6 +1,9 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
-const { initMapFromChain } = require("./preprocess/initdb");
+const {
+  initMapFromChain,
+  initMapByTransferEvent,
+} = require("./preprocess/initdb");
 
 // import constants
 const { CHAIN_INFO } = require("../common/const");
@@ -29,7 +32,7 @@ var mongoose = require("mongoose");
 
 mongoose
   .connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
+  .then(async () => {
     //don't show the log when it is test
     if (process.env.NODE_ENV !== "test") {
       console.log("Connected to %s", MONGODB_URL);
@@ -37,7 +40,13 @@ mongoose
       console.log("Press CTRL + C to stop the process. \n");
     }
 
-    // initMapFromChain(spaceRegistryContract);
+    await initMapFromChain(spaceRegistryContract);
+    var filterTransfer = spaceRegistryContract.filters.Transfer();
+    await initMapByTransferEvent(
+      provider,
+      spaceRegistryContract,
+      filterTransfer
+    );
 
     console.log("Listening Transfer event from space registry contract");
     // Listen to all Transfer events:

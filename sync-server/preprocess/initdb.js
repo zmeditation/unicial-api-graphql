@@ -1,10 +1,11 @@
-const { BigNumber } = require("ethers");
+const { BigNumber, ethers } = require("ethers");
 
 const Map = require("../../models/MapModel");
 const { initMap } = require("../../preprocess/initdb");
 
 const { encodeTokenId } = require("../utility/util");
-const { ZERO_ADDRESS } = require("../../common/db.const");
+const { ZERO_ADDRESS, TILE_TYPES } = require("../../common/db.const");
+const { DEPLOY } = require("../const/sync.const");
 
 async function initMapFromChain(spaceRegistryContract) {
   console.log("Initializing map data including ownership...");
@@ -16,83 +17,69 @@ async function initMapFromChain(spaceRegistryContract) {
     await initMap();
   }
 
-  console.log("- Getting owner data for each spaces...");
-  let updateOps = [];
   for (let i = 0; i < spaces.length; i++) {
     let space = spaces[i];
     // temporily not working with negative xs;
     // SPACERegistry.sol 's encodeTokenId should be upadated soon
-    if (space.x < 0) continue;
 
-    let updateOp,
-      assetId,
-      spaceUpdate,
-      isOwnerExist = false;
+    let assetId, spaceUpdate;
 
     // generate assetId if not exist
-    if (space.assetId) {
-      //do nothing for adding assetId
-      assetId = space.assetId;
-    } else {
+    if (!space.tokenId) {
       console.log("x, y: ", space.x, space.y);
-      assetId = (
-        await spaceRegistryContract.encodeTokenId(space.x, space.y)
-      ).toString();
+      // assetId = (
+      //   await spaceRegistryContract.encodeTokenId(space.x, space.y)
+      // ).toString();
 
-      console.log("encode assetId by s.contract", assetId.toString());
-      console.log(
-        "encode assetId by javascript",
-        encodeTokenId(space.x, space.y).toString()
-      );
+      assetId = encodeTokenId(Math.abs(space.x), Math.abs(space.y)).toString();
+      spaceUpdate = { ...space, tokenId: assetId };
+      await Map.updateOne({ id: space.id }, spaceUpdate, {
+        upsert: true,
+        setDefaultsOnInsert: true,
+      });
     }
-
-    // get owners if any
-    // isOwnerExist = await spaceRegistryContract.exists(assetId);
-    if (space.assetId) {
-      if (isOwnerExist) {
-        owner = await spaceRegistryContract.ownerOf(assetId);
-        spaceUpdate = { ...space, owner: owner };
-        // updateOp = {
-        //   updateOne: {
-        //     filter: { id: space.id },
-        //     update: { ...space, owner: owner },
-        //     upsert: true,
-        //   },
-        // };
-      }
-    } else {
-      if (isOwnerExist) {
-        owner = await spaceRegistryContract.ownerOf(assetId);
-        spaceUpdate = { ...space, tokenId: assetId, owner: owner };
-        // updateOp = {
-        //   updateOne: {
-        //     filter: { id: space.id },
-        //     update: { ...space, tokenId: assetId, owner: owner },
-        //     upsert: true,
-        //   },
-        // };
-      } else {
-        // in case no owner just add assetId
-        spaceUpdate = { ...space, tokenId: assetId };
-        // updateOp = {
-        //   updateOne: {
-        //     filter: { id: space.id },
-        //     update: { ...space, tokenId: assetId },
-        //     upsert: true,
-        //   },
-        // };
-      }
-    }
-
-    await Map.updateOne({ id: space.id }, spaceUpdate, {
-      upsert: true,
-      setDefaultsOnInsert: true,
-    });
-    // add to bulk operations list
-    // updateOps.push(updateOp);
   }
-
-  // await Map.bulkWrite(updateOps, { ordered: false });
 }
 
-module.exports = { initMapFromChain };
+async function initMapByTransferEvent(
+  provider,
+  spaceRegistryContract,
+  filterTransfer
+) {
+  console.log("- Getting owner data for each spaces...");
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsTransfer = await spaceRegistryContract.queryFilter(
+    filterTransfer,
+    from,
+    "latest"
+  );
+
+  console.log("All Transfer counts: ", logsTransfer.length);
+
+  let count = 0;
+  for (let i = 0; i < logsTransfer.length; i++) {
+    let space;
+
+    var log = logsTransfer[i];
+    let assetId = log.args.assetId.toString();
+    let currentOwner = log.args.to.toString();
+    console.log("assetId", assetId);
+    console.log("currentOwner", currentOwner);
+
+    space = await Map.findOne({ tokenId: assetId });
+    if (space) {
+      console.log(space);
+      space.type = TILE_TYPES.OWNED;
+      await Map.updateOne(
+        { id: space.id },
+        { space, owner: currentOwner, type: TILE_TYPES.OWNED }
+      );
+      count++;
+    }
+  }
+  console.log("Exactyl registered token transfer counts: ", count);
+}
+
+module.exports = { initMapFromChain, initMapByTransferEvent };
