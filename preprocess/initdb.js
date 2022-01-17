@@ -4,6 +4,7 @@ const Map = require("../models/MapModel");
 const {
   INIT_MAP_TO_TYPE,
   INIT_MAP_TO_TYPE_KEYS,
+  TILE_TYPES,
 } = require("../common/db.const");
 
 async function initMap() {
@@ -11,21 +12,18 @@ async function initMap() {
   if (mapCounts > 0) return;
 
   var data = fs
-    .readFileSync(path.join(__dirname, "../data/Orchard.csv"))
+    .readFileSync(path.join(__dirname, "../data/brasbasah.csv"))
     .toString() // convert Buffer to string
     .split("\n") // split string to lines
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(",").map((e) => e.trim())); // split each line to array
 
-  console.log(data);
   var mapHeight = data.length;
   var mapWidth = data[0].length;
-  var halfHeight = Math.floor(mapHeight / 2);
-  var halfWidth = Math.floor(mapWidth / 2);
   console.log("mapHeight", mapHeight);
   console.log("mapWidth", mapWidth);
-  console.log("halfHeight", halfHeight);
-  console.log("halfWidth", halfWidth);
+  var halfHeight = Math.floor(mapHeight / 2);
+  var halfWidth = Math.floor(mapWidth / 2);
 
   var maps = [];
   for (let hIndex = 0; hIndex < mapHeight; hIndex++) {
@@ -35,11 +33,29 @@ async function initMap() {
       }
       let map = {};
       x = wIndex - halfWidth;
-      y = hIndex - halfHeight;
+      y = -hIndex + halfHeight;
       id = x.toString() + "," + y.toString();
       type = INIT_MAP_TO_TYPE[data[hIndex][wIndex]];
       updatedAt = Math.floor(Date.now() / 1000);
+      // handle top, left & topLeft for border
+      if ([TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(type)) {
+        // check upper cell: if it is road remove border by setting its top to true
+        if (
+          [TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(
+            INIT_MAP_TO_TYPE[data[hIndex][wIndex]]
+          )
+        )
+          map.top = true;
 
+        // check left  cell: if it is road remove border by setting its left to true
+        if (
+          [TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(
+            INIT_MAP_TO_TYPE[data[hIndex][wIndex]]
+          )
+        )
+          map.left = true;
+        map.topLeft = true;
+      }
       map.x = x;
       map.y = y;
       map.id = id;
@@ -50,6 +66,7 @@ async function initMap() {
   }
 
   await Map.insertMany(maps);
+  console.log("Maps collection created with " + maps.length + " cells");
 }
 
 module.exports = { initMap };
