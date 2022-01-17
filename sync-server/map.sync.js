@@ -1,5 +1,8 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
+
+const Map = require("../models/MapModel");
+
 const {
   initMapFromChain,
   initMapByTransferEvent,
@@ -13,6 +16,7 @@ const {
   SpaceProxyAddress,
   SpaceProxyAbi,
 } = require("../common/contracts/SpaceRegistryContract");
+const { TILE_TYPES } = require("../common/db.const");
 
 // init provider and contracts
 // should be used for http protocol
@@ -50,10 +54,30 @@ mongoose
 
     console.log("Listening Transfer event from space registry contract");
     // Listen to all Transfer events:
-    spaceRegistryContract.on("Transfer", (from, to, tokenId, event) => {
+    spaceRegistryContract.on("Transfer", async (from, to, tokenId, event) => {
       console.log(
         "Transfer occured from " + from + " to " + to + " for token " + tokenId
       );
+      let space = await Map.findOne({ tokenId: tokenId });
+      if (space) {
+        console.log(space);
+        space.type = TILE_TYPES.OWNED;
+        await Map.updateOne(
+          { id: space.id },
+          {
+            space,
+            owner: to,
+            type: TILE_TYPES.OWNED,
+            updatedAt: Math.floor(Date.now() / 1000),
+          }
+        );
+      } else {
+        console.log(
+          "Can not find tokenId " +
+            tokenId +
+            " Please solve the tokenId encoding issue asap."
+        );
+      }
     });
   })
   .catch((err) => {

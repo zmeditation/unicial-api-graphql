@@ -74,7 +74,12 @@ async function initMapByTransferEvent(
       space.type = TILE_TYPES.OWNED;
       await Map.updateOne(
         { id: space.id },
-        { space, owner: currentOwner, type: TILE_TYPES.OWNED }
+        {
+          space,
+          owner: currentOwner,
+          type: TILE_TYPES.OWNED,
+          updatedAt: Math.floor(Date.now() / 1000),
+        }
       );
       count++;
     }
