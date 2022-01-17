@@ -19,4 +19,11 @@ const encodeTokenId = (x, y) => {
   // return (x) * factor) & clearLow) | (uint(y) & clearHigh
 };
 
-module.exports = { encodeTokenId };
+const decodeTokenId = (tokenId) => {
+  let value = BigNumber.from(tokenId);
+  let x = value.and(clearLow).shr(128);
+  let y = value.and(clearHigh);
+  return { x, y };
+};
+
+module.exports = { encodeTokenId, decodeTokenId };
