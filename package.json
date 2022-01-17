@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "api": "nodemon ./bin/www",
+    "sync": "concurrently \"npm run sync-map\"",
     "sync-map": "nodemon ./sync-server/map.sync.js",
     "test": "nyc _mocha --timeout 10000 --exit --report lcovonly -- -R spec",
     "lint": "eslint --fix --config .eslintrc.json \"**/*.js\""
@@ -13,6 +14,7 @@
     "async": "^3.2.3",
     "bcrypt": "^3.0.6",
     "codacy-coverage": "^3.4.0",
+    "concurrently": "^7.0.0",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -30,7 +32,6 @@
     "web3": "^1.6.1"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "eslint": "^6.5.1",
     "mocha": "^6.2.2",
