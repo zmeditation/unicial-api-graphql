@@ -4,7 +4,7 @@ const { ethers } = require("ethers");
 const Map = require("../models/MapModel");
 
 const {
-  initMapFromChain,
+  initMapWithTokenIds,
   initMapByTransferEvent,
 } = require("./preprocess/initdb");
 
@@ -44,7 +44,7 @@ mongoose
       console.log("Press CTRL + C to stop the process. \n");
     }
 
-    await initMapFromChain(spaceRegistryContract);
+    await initMapWithTokenIds();
     var filterTransfer = spaceRegistryContract.filters.Transfer();
     await initMapByTransferEvent(
       provider,
@@ -52,11 +52,16 @@ mongoose
       filterTransfer
     );
 
-    console.log("Listening Transfer event from space registry contract");
+    console.log("Listening Transfer event from space registry contract...");
     // Listen to all Transfer events:
     spaceRegistryContract.on("Transfer", async (from, to, tokenId, event) => {
       console.log(
-        "Transfer occured from " + from + " to " + to + " for token " + tokenId
+        "Transfer occured from " +
+          from +
+          " to " +
+          to +
+          " for token " +
+          tokenId.toString()
       );
       let space = await Map.findOne({ tokenId: tokenId });
       if (space) {
@@ -74,7 +79,7 @@ mongoose
       } else {
         console.log(
           "Can not find tokenId " +
-            tokenId +
+            tokenId.toString() +
             " Please solve the tokenId encoding issue asap."
         );
       }

@@ -2656,9 +2656,9 @@ const SpaceRegistryAbi = [
   },
 ];
 
-const SpaceRegistryAddress = "0x5d72b4697E468d5AC752028aD75ff454DF4B6F3A";
+const SpaceRegistryAddress = "0xa20e6D5d5cc0467Ed5caC4281804610b8cA06259";
 
-const SpaceProxyAddress = "0x7FD63a29c38CeF42E97D0D3CD80Cc48286e4d419";
+const SpaceProxyAddress = "0xE091e3C30e665213Aa33069e1301cD17938c1E8b";
 
 const SpaceProxyAbi = [
   {
