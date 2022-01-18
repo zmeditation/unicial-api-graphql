@@ -7,7 +7,7 @@ const { encodeTokenId } = require("../utility/util");
 const { TILE_TYPES } = require("../../common/db.const");
 const { DEPLOY } = require("../const/sync.const");
 
-async function initMapFromChain(spaceRegistryContract) {
+async function initMapWithTokenIds() {
   console.log("*** Initializing map data including ownership...");
   var spaces = await Map.find().lean();
   console.log("- Total spaces count found in maps collection: ", spaces.length);
@@ -127,4 +127,4 @@ async function initMapByTransferEvent(
   );
 }
 
-module.exports = { initMapFromChain, initMapByTransferEvent };
+module.exports = { initMapWithTokenIds, initMapByTransferEvent };

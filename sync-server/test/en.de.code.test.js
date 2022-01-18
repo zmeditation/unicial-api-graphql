@@ -13,6 +13,12 @@ const {
   SpaceProxyAddress,
   SpaceProxyAbi,
 } = require("../../common/contracts/SpaceRegistryContract");
+
+const {
+  SpaceAuctionAddress,
+  SpaceAuctionAbi,
+} = require("../../common/contracts/SpaceAuctionContract");
+
 const { CHAIN_INFO } = require("../../common/const");
 const provider = new ethers.providers.JsonRpcProvider(
   CHAIN_INFO.TESTNET.rpcUrls[0]
@@ -126,4 +132,13 @@ const main = async () => {
   }
 };
 
-main();
+const checkAuctionAuthorized = async () => {
+  console.log("Space Auction Contract: ", SpaceAuctionAddress);
+  let authorizeDeploy = await spaceRegistryContract.authorizedDeploy(
+    SpaceAuctionAddress
+  );
+  console.log("Authorized? ", authorizeDeploy);
+};
+
+// main();
+checkAuctionAuthorized();

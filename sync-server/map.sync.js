@@ -4,7 +4,7 @@ const { ethers } = require("ethers");
 const Map = require("../models/MapModel");
 
 const {
-  initMapFromChain,
+  initMapWithTokenIds,
   initMapByTransferEvent,
 } = require("./preprocess/initdb");
 
@@ -44,7 +44,7 @@ mongoose
       console.log("Press CTRL + C to stop the process. \n");
     }
 
-    await initMapFromChain(spaceRegistryContract);
+    await initMapWithTokenIds();
     var filterTransfer = spaceRegistryContract.filters.Transfer();
     await initMapByTransferEvent(
       provider,
