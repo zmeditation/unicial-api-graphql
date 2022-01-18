@@ -4,6 +4,7 @@ const {
   encodeTokenId,
   decodeTokenId,
   encodeTokenIdBySol,
+  decodeTokenIdBySol,
 } = require("../utility/util");
 
 const {
@@ -26,6 +27,11 @@ var spaceRegistryContract = new ethers.Contract(
 
 const encodeA1BySol = async (spaceRegistryContract, x, y) => {
   result = await encodeTokenIdBySol(spaceRegistryContract, x, y);
+  return result;
+};
+
+const decodeA1BySol = async (spaceRegistryContract, x, y) => {
+  result = await decodeTokenIdBySol(spaceRegistryContract, x, y);
   return result;
 };
 
@@ -86,6 +92,7 @@ const main = async () => {
       }
 
       encodeA1Sol = await encodeA1BySol(spaceRegistryContract, x_data, y_data);
+      decodeA1Sol = await decodeA1BySol(spaceRegistryContract, encodeA1Sol);
 
       console.log(
         "Encode (" +
@@ -95,8 +102,24 @@ const main = async () => {
           "): by SPACERegistry.sol " +
           encodeA1Sol
       );
+
+      console.log(
+        "Decode " +
+          encodeA1Sol.toString() +
+          " for (" +
+          x_data +
+          ", " +
+          y_data +
+          "): " +
+          " (" +
+          decodeA1Sol[0].toString() +
+          ", " +
+          decodeA1Sol[1].toString() +
+          ")"
+      );
     } catch (err) {
       console.warn("Encoding failed");
+      console.log(err.message);
     }
     console.log("============================\n");
   }
