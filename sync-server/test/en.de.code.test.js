@@ -58,37 +58,39 @@ const main = async () => {
       );
       console.log("============================\n");
 
-      if (x_data > 0 && y_data > 0) {
-        encodeA1 = encodeTokenId(x_data, y_data);
-        console.log(
-          "Encode (" + x_data + ", " + y_data + "): ",
-          encodeA1.toString()
-        );
+      // if (x_data > 0 && y_data > 0) {
 
-        decodeA1 = decodeTokenId(encodeA1);
-        console.log(
-          "Decode " +
-            encodeA1.toString() +
-            " for (" +
-            x_data +
-            ", " +
-            y_data +
-            "): " +
-            " (" +
-            decodeA1.x.toString() +
-            ", " +
-            decodeA1.y.toString() +
-            ")"
-        );
-      } else {
-        console.log(
-          "Encode (" +
-            x_data +
-            ", " +
-            y_data +
-            ") is ignore for javascript as they are negative values"
-        );
-      }
+      // } else {
+      //   console.log(
+      //     "Encode (" +
+      //       x_data +
+      //       ", " +
+      //       y_data +
+      //       ") is ignore for javascript as they are negative values"
+      //   );
+      // }
+
+      encodeA1 = encodeTokenId(x_data, y_data);
+      console.log(
+        "Encode (" + x_data + ", " + y_data + "): ",
+        encodeA1.toString()
+      );
+
+      decodeA1 = decodeTokenId(encodeA1);
+      console.log(
+        "Decode " +
+          encodeA1.toString() +
+          " for (" +
+          x_data +
+          ", " +
+          y_data +
+          "): " +
+          " (" +
+          decodeA1.x.toString() +
+          ", " +
+          decodeA1.y.toString() +
+          ")"
+      );
 
       encodeA1Sol = await encodeA1BySol(spaceRegistryContract, x_data, y_data);
       decodeA1Sol = await decodeA1BySol(spaceRegistryContract, encodeA1Sol);

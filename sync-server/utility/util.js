@@ -7,22 +7,26 @@ const clearHigh = BigNumber.from(
 );
 const factor = BigNumber.from("0x100000000000000000000000000000000");
 
+const baseX = 1000000;
+const baseY = 1000000;
+const clearBaseX = BigNumber.from(baseX);
+const clearBaseY = BigNumber.from(baseY);
+
 const encodeTokenId = (x, y) => {
-  let x_bn = BigNumber.from(x);
-  let y_bn = BigNumber.from(y);
+  let x_bn = BigNumber.from(x + baseX);
+  let y_bn = BigNumber.from(y + baseY);
 
   x_part = x_bn.mul(factor).and(clearLow);
   y_part = y_bn.and(clearHigh);
   //   console.log("x_part", x_part);
   //   console.log("y_part", y_part);
   return x_part.or(y_part);
-  // return (x) * factor) & clearLow) | (uint(y) & clearHigh
 };
 
 const decodeTokenId = (tokenId) => {
   let value = BigNumber.from(tokenId);
-  let x = value.and(clearLow).shr(128);
-  let y = value.and(clearHigh);
+  let x = value.and(clearLow).shr(128).sub(clearBaseX);
+  let y = value.and(clearHigh).sub(clearBaseY);
   return { x, y };
 };
 

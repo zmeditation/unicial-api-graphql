@@ -4,34 +4,31 @@ const Map = require("../../models/MapModel");
 const { initMap } = require("../../preprocess/initdb");
 
 const { encodeTokenId } = require("../utility/util");
-const { ZERO_ADDRESS, TILE_TYPES } = require("../../common/db.const");
+const { TILE_TYPES } = require("../../common/db.const");
 const { DEPLOY } = require("../const/sync.const");
 
 async function initMapFromChain(spaceRegistryContract) {
-  console.log("Initializing map data including ownership...");
+  console.log("*** Initializing map data including ownership...");
   var spaces = await Map.find().lean();
-  console.log(spaces.length);
+  console.log("- Total spaces count found in maps collection: ", spaces.length);
 
   if (spaces.length === 0) {
-    console.log("- Initializing map data...");
+    console.log("- Initializing map data only with (x, y, id)...");
     await initMap();
+    console.log("* Done! Initializing map data only with (x, y, id)");
+    spaces = await Map.find().lean();
   }
 
+  console.log(
+    "- Initializing map data with (tokenId)...\n This may take upto several minutes for the first time"
+  );
   for (let i = 0; i < spaces.length; i++) {
     let space = spaces[i];
-    // temporily not working with negative xs;
-    // SPACERegistry.sol 's encodeTokenId should be upadated soon
-
     let assetId, spaceUpdate;
 
     // generate assetId if not exist
     if (!space.tokenId) {
-      console.log("x, y: ", space.x, space.y);
-      // assetId = (
-      //   await spaceRegistryContract.encodeTokenId(space.x, space.y)
-      // ).toString();
-
-      assetId = encodeTokenId(Math.abs(space.x), Math.abs(space.y)).toString();
+      assetId = encodeTokenId(space.x, space.y).toString();
       spaceUpdate = { ...space, tokenId: assetId };
       await Map.updateOne({ id: space.id }, spaceUpdate, {
         upsert: true,
@@ -40,13 +37,16 @@ async function initMapFromChain(spaceRegistryContract) {
     }
   }
 }
+console.log("* Done! Initializing map data with (tokenId)");
 
 async function initMapByTransferEvent(
   provider,
   spaceRegistryContract,
   filterTransfer
 ) {
-  console.log("- Getting owner data for each spaces...");
+  console.log(
+    "- Synchronizing owner data for each spaces for previous blocks to current block..."
+  );
   var latestBlock = await provider.getBlockNumber();
   var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
 
@@ -56,17 +56,26 @@ async function initMapByTransferEvent(
     "latest"
   );
 
-  console.log("All Transfer counts: ", logsTransfer.length);
+  console.log("- All Transfer counts: ", logsTransfer.length);
 
-  let count = 0;
+  let successCount = 0,
+    failedCount = 0;
   for (let i = 0; i < logsTransfer.length; i++) {
     let space;
 
     var log = logsTransfer[i];
     let assetId = log.args.assetId.toString();
+    let previousOwner = log.args.from.toString();
     let currentOwner = log.args.to.toString();
-    console.log("assetId", assetId);
-    console.log("currentOwner", currentOwner);
+    console.log(
+      "=========================Transfer Item==========================="
+    );
+    console.log("assetId: ", assetId);
+    console.log("previousOwner: ", previousOwner);
+    console.log("currentOwner: ", currentOwner);
+    console.log(
+      "================================================================="
+    );
 
     space = await Map.findOne({ tokenId: assetId });
     if (space) {
@@ -81,10 +90,41 @@ async function initMapByTransferEvent(
           updatedAt: Math.floor(Date.now() / 1000),
         }
       );
-      count++;
+      successCount++;
+    } else {
+      failedCount++;
+      console.log(
+        "!!! Can not find space in maps collection for tokenId",
+        assetId
+      );
     }
   }
-  console.log("Exactyl registered token transfer counts: ", count);
+  console.log(
+    "* Done! For synchronizing owner data for each spaces for previous blocks to current block"
+  );
+  console.log(
+    "=========================Synchronizing previous Transfers Status==========================="
+  );
+  console.log(
+    " * Total transfers from block " +
+      DEPLOY.SPACE_PROXY_DEPLOY_BLOCK +
+      " to block " +
+      latestBlock +
+      ": " +
+      logsTransfer.length
+  );
+  console.log(" * Successfully saved on maps collection : ", successCount);
+  console.log(
+    " * Failed saving on maps collection as no tokenId found : ",
+    failedCount
+  );
+
+  // Should do sth if failed exist
+  if (failedCount > 0)
+    console.log("!!! Checkout assests again and should add them");
+  console.log(
+    "============================================================================================"
+  );
 }
 
 module.exports = { initMapFromChain, initMapByTransferEvent };
