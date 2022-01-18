@@ -26,4 +26,9 @@ const decodeTokenId = (tokenId) => {
   return { x, y };
 };
 
-module.exports = { encodeTokenId, decodeTokenId };
+const encodeTokenIdBySol = async (spaceRegistryContract, x, y) => {
+  let assetId = await spaceRegistryContract.encodeTokenId(x, y);
+  return assetId;
+};
+
+module.exports = { encodeTokenId, decodeTokenId, encodeTokenIdBySol };
