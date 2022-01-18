@@ -14,7 +14,6 @@ const {
   SpaceProxyAbi,
 } = require("../../common/contracts/SpaceRegistryContract");
 const { CHAIN_INFO } = require("../../common/const");
-const { default: async } = require("async");
 const provider = new ethers.providers.JsonRpcProvider(
   CHAIN_INFO.TESTNET.rpcUrls[0]
 );
@@ -36,10 +35,10 @@ const decodeA1BySol = async (spaceRegistryContract, x, y) => {
 };
 
 const testSpaces = {
-  a1: { x: 2, y: 2 },
-  a2: { x: -2, y: 2 },
-  a3: { x: -2, y: -2 },
-  a4: { x: 2, y: -2 },
+  a1: { x: 123, y: 456 },
+  a2: { x: -123, y: 456 },
+  a3: { x: -123, y: -456 },
+  a4: { x: 123, y: -456 },
 };
 
 const main = async () => {
