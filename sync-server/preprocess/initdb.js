@@ -1,6 +1,5 @@
-const { BigNumber, ethers } = require("ethers");
-
 const Map = require("../../models/MapModel");
+const Transfer = require("../../models/TransferModel");
 const { initMap } = require("../../preprocess/initdb");
 
 const { encodeTokenId } = require("../utility/util");
@@ -42,7 +41,8 @@ console.log("* Done! Initializing map data with (tokenId)");
 async function initMapByTransferEvent(
   provider,
   spaceRegistryContract,
-  filterTransfer
+  filterTransfer,
+  SpaceProxyAddress
 ) {
   console.log(
     "- Synchronizing owner data for each spaces for previous blocks to current block..."
@@ -59,14 +59,18 @@ async function initMapByTransferEvent(
   console.log("- All Transfer counts: ", logsTransfer.length);
 
   let successCount = 0,
-    failedCount = 0;
+    failedCount = 0,
+    txExistCnt = 0,
+    txNewCnt = 0;
   for (let i = 0; i < logsTransfer.length; i++) {
     let space;
-
     var log = logsTransfer[i];
+    let blockNumber = log.blockNumber;
+    let txHash = log.transactionHash;
     let assetId = log.args.assetId.toString();
     let previousOwner = log.args.from.toString();
     let currentOwner = log.args.to.toString();
+
     console.log(
       "=========================Transfer Item==========================="
     );
@@ -77,9 +81,27 @@ async function initMapByTransferEvent(
       "================================================================="
     );
 
+    let transfer = await Transfer.findOne({
+      $and: [{ txHash: txHash }, { tokenId: assetId }],
+    });
+    if (transfer) {
+      // do nothing if exist previous
+      txExistCnt++;
+    } else {
+      let tr = new Transfer({
+        from: previousOwner,
+        to: currentOwner,
+        tokenId: assetId,
+        blockNumber: blockNumber,
+        tokenAddress: SpaceProxyAddress,
+        txHash: txHash,
+      });
+      await tr.save();
+      txNewCnt++;
+    }
+
     space = await Map.findOne({ tokenId: assetId });
     if (space) {
-      console.log(space);
       space.type = TILE_TYPES.OWNED;
       await Map.updateOne(
         { id: space.id },
@@ -122,6 +144,12 @@ async function initMapByTransferEvent(
   // Should do sth if failed exist
   if (failedCount > 0)
     console.log("!!! Checkout assests again and should add them");
+
+  console.log(
+    " * Existing Transfer events in transfers collection : ",
+    txExistCnt
+  );
+  console.log(" * Newly detected events while syncing : ", txNewCnt++);
   console.log(
     "============================================================================================"
   );
