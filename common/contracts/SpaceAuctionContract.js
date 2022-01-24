@@ -1,4 +1,4 @@
-const SpaceAuctionAddress = "0x2aE729B9BcaE209179dc77747886106B349957DE";
+const SpaceAuctionAddress = "0xbd76517976a80996977Ad9DFBE7c8b2105EC4878";
 
 const SpaceAuctionAbi = [
   {
@@ -203,7 +203,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -217,7 +216,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -231,7 +229,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -245,7 +242,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -259,7 +255,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -273,7 +268,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -287,7 +281,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -301,7 +294,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -315,7 +307,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -336,7 +327,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -350,7 +340,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -364,7 +353,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -378,7 +366,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -392,7 +379,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -406,7 +392,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [],
@@ -420,7 +405,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [
@@ -447,7 +431,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [
@@ -484,7 +467,6 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-    constant: true,
   },
   {
     inputs: [
