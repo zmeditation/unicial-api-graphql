@@ -8,7 +8,7 @@ var MapSchema = new mongoose.Schema({
   nftAddress: { type: String, required: true },
   priceInWei: { type: String },
   totalPrice: { type: String },
-  expireAt: { type: String },
+  expiresAt: { type: String },
   orderStatus: { type: String, required: true },
 });
 

@@ -23,4 +23,10 @@ const CHAIN_INFO = {
   },
 };
 
-module.exports = { CHAIN_INFO };
+const ORDER_STATUS = {
+  active: "active",
+  success: "success",
+  cancel: "cancel",
+};
+
+module.exports = { CHAIN_INFO, ORDER_STATUS };
