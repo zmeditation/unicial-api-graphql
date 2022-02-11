@@ -9,13 +9,16 @@ exports.getActiveParcels = async (req, res) => {
   try {
     var currentDate = new Date();
     var currentTimestamp = currentDate.getTime() / 1000;
-    const activeOrders = await Order.find({
-      $and: [
-        { nftAddress: SpaceProxyAddress },
-        { orderStatus: ORDER_STATUS.active },
-        { expiresAt: { $gte: currentTimestamp } },
-      ],
-    }).lean();
+    const activeOrders = await Order.find(
+      {
+        $and: [
+          { nftAddress: SpaceProxyAddress },
+          { orderStatus: ORDER_STATUS.active },
+          { expiresAt: { $gte: currentTimestamp } },
+        ],
+      },
+      { _id: 0, __v: 0, orderStatus: 0 }
+    ).lean();
     const activeParcels = {};
     activeOrders.forEach((activeOrder) => {
       var { x, y } = decodeTokenId(activeOrder.assetId);
