@@ -2,6 +2,7 @@ require("dotenv").config();
 const { ethers } = require("ethers");
 
 const Map = require("../models/MapModel");
+const Transfer = require("../models/TransferModel");
 
 const {
   initMapWithTokenIds,
@@ -49,7 +50,8 @@ mongoose
     await initMapByTransferEvent(
       provider,
       spaceRegistryContract,
-      filterTransfer
+      filterTransfer,
+      SpaceProxyAddress
     );
 
     console.log("Listening Transfer event from space registry contract...");
@@ -63,9 +65,28 @@ mongoose
           " for token " +
           tokenId.toString()
       );
+      console.log("event", event);
+
+      let transfer = await Transfer.findOne({
+        txHash: event.transactionHash,
+        tokenId: event.args.assetId,
+      });
+      if (transfer) {
+        // do nothing if exist previous
+      } else {
+        let tr = new Transfer({
+          from: event.args.from,
+          to: event.args.from,
+          tokenId: event.args.assetId,
+          blockNumber: event.blockNumber,
+          tokenAddress: event.address,
+          txHash: event.transactionHash,
+        });
+        await tr.save();
+      }
+
       let space = await Map.findOne({ tokenId: tokenId });
       if (space) {
-        console.log(space);
         space.type = TILE_TYPES.OWNED;
         await Map.updateOne(
           { id: space.id },

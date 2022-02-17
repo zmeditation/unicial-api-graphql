@@ -1,12 +1,7 @@
-var Web3 = require("web3");
-
 var Map = require("../models/MapModel");
 
 const { OWNERS } = require("../common/mockup.const");
 const { randomIntFromInterval } = require("../helpers/utility");
-const { CHAIN_INFO } = require("../common/const");
-
-var web3 = new Web3(CHAIN_INFO.TESTNET.rpcUrls[0]);
 
 exports.getMap = async (req, res) => {
   try {
@@ -21,7 +16,7 @@ exports.getMap = async (req, res) => {
   }
 };
 
-// controller to create random owners
+// controller to create random owners; not necessary now
 exports.addRndOwners = async (req, res) => {
   try {
     var mapData = await Map.find({}, { _id: 0, __v: 0 }).lean();
@@ -46,7 +41,7 @@ exports.addRndOwners = async (req, res) => {
   }
 };
 
-// add owners from smart contract
+// add owners from smart contract; not necessary now
 exports.addOwners = async (req, res) => {
   try {
     var mapData = await Map.find({}, { _id: 0, __v: 0 }).lean();

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "api": "nodemon ./bin/www",
-    "sync": "concurrently \"npm run sync-map\"",
+    "sync": "concurrently \"npm run sync-map\" \"npm run sync-order\"",
+    "sync-order": "nodemon ./sync-server/order.sync.js",
     "sync-map": "nodemon ./sync-server/map.sync.js",
     "test": "nyc _mocha --timeout 10000 --exit --report lcovonly -- -R spec",
     "lint": "eslint --fix --config .eslintrc.json \"**/*.js\""
