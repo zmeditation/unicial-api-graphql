@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 
-var MapSchema = new mongoose.Schema({
+var BidSchema = new mongoose.Schema({
   id: { type: String, required: true },
   assetId: { type: String, required: true },
   seller: { type: String, required: true },
@@ -12,4 +12,4 @@ var MapSchema = new mongoose.Schema({
   orderStatus: { type: String, required: true },
 });
 
-module.exports = mongoose.model("Order", MapSchema);
+module.exports = mongoose.model("Order", BidSchema);

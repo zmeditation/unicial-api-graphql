@@ -1,9 +1,9 @@
 var mongoose = require("mongoose");
 
-var BidSchema = new mongoose.Schema({
+var BidEventSchema = new mongoose.Schema({
   id: { type: String, required: true },
   eventName: { type: String, required: true },
   eventParams: { type: Object, required: true },
 });
 
-module.exports = mongoose.model("OrderEvent", BidSchema);
+module.exports = mongoose.model("BidEvent", BidEventSchema);
