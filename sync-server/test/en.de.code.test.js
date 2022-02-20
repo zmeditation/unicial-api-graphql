@@ -9,7 +9,7 @@ const {
 
 const {
   SpaceRegistryAddress,
-  SpaceRegistryOptimizeAbi,
+  SpaceRegistryAbi,
   SpaceProxyAddress,
   SpaceProxyAbi,
 } = require("../../common/contracts/SpaceRegistryContract");
@@ -26,7 +26,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 
 var spaceRegistryContract = new ethers.Contract(
   SpaceProxyAddress,
-  SpaceRegistryOptimizeAbi,
+  SpaceRegistryAbi,
   provider
 );
 

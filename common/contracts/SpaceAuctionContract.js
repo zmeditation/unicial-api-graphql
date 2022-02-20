@@ -1,21 +1,26 @@
-const SpaceAuctionAddress = "0xbd76517976a80996977Ad9DFBE7c8b2105EC4878";
+const SpaceAuctionAddress = "0x229F6Ae87060Bba276c7d24C782E3a5bf0435DcA";
 
 const SpaceAuctionAbi = [
   {
     inputs: [
       {
-        internalType: "uint256[]",
-        name: "_timeSteps",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "_priceSteps",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "_startTime",
+        type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "_startTime",
+        name: "_duration",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_initialPrice",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_spaceIncPricePerBid",
         type: "uint256",
       },
       {
@@ -72,7 +77,7 @@ const SpaceAuctionAbi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "_endPrice",
+        name: "spaceIncPricePerBid",
         type: "uint256",
       },
     ],
@@ -97,7 +102,7 @@ const SpaceAuctionAbi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "_pricePerLandInMana",
+        name: "_pricePerSpaceInMana",
         type: "uint256",
       },
       {
@@ -192,21 +197,33 @@ const SpaceAuctionAbi = [
     type: "event",
   },
   {
-    inputs: [],
-    name: "MAX_DECIMALS",
-    outputs: [
+    anonymous: false,
+    inputs: [
       {
+        indexed: false,
         internalType: "uint256",
-        name: "",
+        name: "_bidId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_token",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_total",
         type: "uint256",
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    name: "TokenBurned",
+    type: "event",
   },
   {
     inputs: [],
-    name: "PERCENTAGE_OF_TOKEN_BALANCE",
+    name: "currentPrice",
     outputs: [
       {
         internalType: "uint256",
@@ -216,19 +233,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "conversionFee",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -242,19 +247,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "endPrice",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -268,6 +261,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -281,6 +275,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -294,6 +289,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -307,6 +303,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -314,6 +311,20 @@ const SpaceAuctionAbi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    inputs: [],
+    name: "spaceIncPricePerBid",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -327,6 +338,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -340,6 +352,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -353,6 +366,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -366,6 +380,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -379,6 +394,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -392,6 +408,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [],
@@ -405,6 +422,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [
@@ -431,6 +449,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [
@@ -467,6 +486,7 @@ const SpaceAuctionAbi = [
     ],
     stateMutability: "view",
     type: "function",
+    constant: true,
   },
   {
     inputs: [

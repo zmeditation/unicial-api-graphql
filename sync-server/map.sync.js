@@ -13,23 +13,11 @@ const {
 const { CHAIN_INFO } = require("../common/const");
 const {
   SpaceRegistryAddress,
-  SpaceRegistryOptimizeAbi,
+  SpaceRegistryAbi,
   SpaceProxyAddress,
   SpaceProxyAbi,
 } = require("../common/contracts/SpaceRegistryContract");
 const { TILE_TYPES } = require("../common/db.const");
-
-// init provider and contracts
-// should be used for http protocol
-var provider = new ethers.providers.JsonRpcProvider(
-  CHAIN_INFO.TESTNET.rpcUrls[0]
-);
-
-var spaceRegistryContract = new ethers.Contract(
-  SpaceProxyAddress,
-  SpaceRegistryOptimizeAbi,
-  provider
-);
 
 // DB connection
 var MONGODB_URL = process.env.MONGODB_URL;
@@ -46,6 +34,18 @@ mongoose
     }
 
     await initMapWithTokenIds();
+
+    // init provider and contracts
+    // should be used for http protocol
+    var provider = new ethers.providers.JsonRpcProvider(
+      CHAIN_INFO.TESTNET.rpcUrls[0]
+    );
+
+    var spaceRegistryContract = new ethers.Contract(
+      SpaceProxyAddress,
+      SpaceRegistryAbi,
+      provider
+    );
     var filterTransfer = spaceRegistryContract.filters.Transfer();
     await initMapByTransferEvent(
       provider,
