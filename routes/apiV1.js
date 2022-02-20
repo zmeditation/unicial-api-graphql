@@ -3,6 +3,7 @@ var mapRouter = require("./map");
 var parcelRouter = require("./parcel");
 var estateRouter = require("./estate");
 var storeRouter = require("./store");
+var bidRouter = require("./bid");
 
 var app = express();
 
@@ -21,5 +22,10 @@ app.use("/parcel/", parcelRouter);
 // @desc     Get estate related data
 // @access   Public
 app.use("/estate/", estateRouter);
+
+// @route    GET /api/v1/bid
+// @desc     Get bid related data
+// @access   Public
+app.use("/bid/", bidRouter);
 
 module.exports = app;

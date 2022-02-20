@@ -1,5 +1,4 @@
 var Order = require("../models/OrderModel");
-var Bid = require("../models/BidModel");
 var {
   SpaceProxyAddress,
 } = require("../common/contracts/SpaceRegistryContract");
@@ -29,25 +28,6 @@ exports.getActiveParcels = async (req, res) => {
       activeParcels[key] = activeOrder;
     });
     return res.json({ ok: true, data: activeParcels, error: "" });
-  } catch (err) {
-    return res.json({ ok: false, error: err.message });
-  }
-};
-
-exports.getActiveBids = async (req, res) => {
-  try {
-    var currentDate = new Date();
-    var currentTimestamp = currentDate.getTime() / 1000;
-    const activeBids = await Bid.find(
-      {
-        $and: [
-          { orderStatus: ORDER_STATUS.active },
-          { expiresAt: { $gte: currentTimestamp } },
-        ],
-      },
-      { _id: 0, __v: 0, bidStatus: 0 }
-    ).lean();
-    return res.json({ ok: true, data: activeBids, error: "" });
   } catch (err) {
     return res.json({ ok: false, error: err.message });
   }
