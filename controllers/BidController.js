@@ -35,7 +35,7 @@ exports.getBidsByBidder = async (req, res) => {
     bidder = req.params.bidder;
     const bids = await Bid.find(
       {
-        $and: [{ bidder: bidder }],
+        $and: [{ bidder: { $regex: new RegExp(`^${bidder}$`, "i") } }],
       },
       { _id: 0, __v: 0, bidStatus: 0 }
     ).lean();
@@ -54,7 +54,7 @@ exports.getActiveBidsByBidder = async (req, res) => {
     const activeBidsByBidder = await Bid.find(
       {
         $and: [
-          { bidder: bidder },
+          { bidder: { $regex: new RegExp(`^${bidder}$`, "i") } },
           { bidStatus: ORDER_STATUS.active },
           { expiresAt: { $gte: currentTimestamp } },
         ],
@@ -76,7 +76,7 @@ exports.getExpiredBidsByBidder = async (req, res) => {
     const expiredBidsByBidder = await Bid.find(
       {
         $and: [
-          { bidder: bidder },
+          { bidder: { $regex: new RegExp(`^${bidder}$`, "i") } },
           {
             $or: [
               { bidStatus: { $ne: ORDER_STATUS.active } },
