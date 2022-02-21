@@ -1234,7 +1234,7 @@ const EstateRegistryAbi = [
 
 const EstateRegistryAddress = "0xEbF2c1571c631f04e30396E6eF615c7B5137dF53";
 
-const EstateProxyAddress = "0xa92bB248eFA35EA300aA554a4856d0995F43358C ";
+const EstateProxyAddress = "0xa92bB248eFA35EA300aA554a4856d0995F43358C";
 
 module.exports = {
   EstateRegistryAddress,

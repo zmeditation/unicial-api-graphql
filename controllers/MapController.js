@@ -1,4 +1,5 @@
 var Map = require("../models/MapModel");
+var Estate = require("../models/EstateModel");
 
 const { OWNERS } = require("../common/mockup.const");
 const { randomIntFromInterval } = require("../helpers/utility");
@@ -8,6 +9,12 @@ exports.getMap = async (req, res) => {
     var mapData = await Map.find({}, { _id: 0, __v: 0 }).lean();
     var data = {};
     for (let i = 0; i < mapData.length; i++) {
+      if (mapData[i].estateId) {
+        var EstateData = await Estate.findOne({
+          estateId: mapData[i].estateId,
+        });
+        mapData[i].owner = EstateData.estateAddress;
+      }
       data[mapData[i].id] = mapData[i];
     }
     return res.json({ ok: true, data: data, error: "" });

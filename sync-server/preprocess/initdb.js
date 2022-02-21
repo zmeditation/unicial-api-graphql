@@ -4,6 +4,7 @@ const OrderEvent = require("../../models/OrderEventModel");
 const Order = require("../../models/OrderModel");
 const BidEvent = require("../../models/BidEventModel");
 const Bid = require("../../models/BidModel");
+const Estate = require("../../models/EstateModel");
 const { initMap } = require("../../preprocess/initdb");
 
 const { encodeTokenId } = require("../utility/util");
@@ -264,11 +265,7 @@ async function initOrderByOrderEvent(
   });
 }
 
-async function initBidEventByBidEvent(
-  provider,
-  BidContract,
-  filterBidEvent
-) {
+async function initBidEventByBidEvent(provider, BidContract, filterBidEvent) {
   var latestBlock = await provider.getBlockNumber();
   var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
 
@@ -303,31 +300,19 @@ async function initBidEventByBidEvent(
     BidEvent.insertMany(bidEventUpdates);
   } else {
     bidEventUpdates.forEach(async (bidEventUpdate) => {
-      await BidEvent.updateOne(
-        { id: bidEventUpdate.id },
-        bidEventUpdate,
-        {
-          upsert: true,
-          setDefaultsOnInsert: true,
-        }
-      );
+      await BidEvent.updateOne({ id: bidEventUpdate.id }, bidEventUpdate, {
+        upsert: true,
+        setDefaultsOnInsert: true,
+      });
     });
   }
 }
 
-async function initBidByBidEvent(
-  provider,
-  BidContract,
-  filterBidEvent
-) {
+async function initBidByBidEvent(provider, BidContract, filterBidEvent) {
   var latestBlock = await provider.getBlockNumber();
   var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
 
-  var logsBid = await BidContract.queryFilter(
-    filterBidEvent,
-    from,
-    "latest"
-  );
+  var logsBid = await BidContract.queryFilter(filterBidEvent, from, "latest");
   let bidUpdates = [];
   for (let i = 0; i < logsBid.length; i++) {
     // generate assetId if not exist
@@ -335,35 +320,93 @@ async function initBidByBidEvent(
       let bidUpdate = {};
       let bid = logsBid[i];
       bidUpdate.id = bid.args._id;
-      bidUpdate.tokenAddress= bid.args._tokenAddress;
-      bidUpdate.tokenId= bid.args._tokenId?.toString();
-      bidUpdate.bidder= bid.args._bidder;
-      if(bid.event === 'BidCreated') {
-        bidUpdate.price= bid.args._price?.toString();
-        bidUpdate.fingerprint= bid.args._fingerprint;
-        bidUpdate.expiresAt= bid.args._expiresAt?.toString();
+      bidUpdate.tokenAddress = bid.args._tokenAddress;
+      bidUpdate.tokenId = bid.args._tokenId?.toString();
+      bidUpdate.bidder = bid.args._bidder;
+      if (bid.event === "BidCreated") {
+        bidUpdate.price = bid.args._price?.toString();
+        bidUpdate.fingerprint = bid.args._fingerprint;
+        bidUpdate.expiresAt = bid.args._expiresAt?.toString();
         bidUpdate.bidStatus = "active";
-      }else if(bid.event === 'BidAccepted') {
-        bidUpdate.seller= bid.args._seller;
-        bidUpdate.price= bid.args._price?.toString();
-        bidUpdate.fee= bid.args._fee?.toString();
+      } else if (bid.event === "BidAccepted") {
+        bidUpdate.seller = bid.args._seller;
+        bidUpdate.price = bid.args._price?.toString();
+        bidUpdate.fee = bid.args._fee?.toString();
         bidUpdate.bidStatus = "success";
-      }else if(bid.event === 'BidCancelled'){
+      } else if (bid.event === "BidCancelled") {
         bidUpdate.bidStatus = "cancel";
       }
       bidUpdates.push(bidUpdate);
     }
   }
   bidUpdates.forEach(async (bidUpdate) => {
-    await Bid.updateOne(
-      { id: bidUpdate.id },
-      bidUpdate,
-      {
-        upsert: true,
-        setDefaultsOnInsert: true,
-      }
-    );
+    await Bid.updateOne({ id: bidUpdate.id }, bidUpdate, {
+      upsert: true,
+      setDefaultsOnInsert: true,
+    });
   });
+}
+
+async function initEstateByEstateEvent(
+  provider,
+  EstateContract,
+  filterCreateEstate
+) {
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsCreateEstate = await EstateContract.queryFilter(
+    filterCreateEstate,
+    from,
+    "latest"
+  );
+
+  for (let i = 0; i < logsCreateEstate.length; i++) {
+    let estateData = logsCreateEstate[i].args;
+    await Estate.updateOne(
+      { estateId: estateData._estateId.toString() },
+      {
+        estateId: estateData._estateId.toString(),
+        estateAddress: estateData._owner,
+        metaData: estateData._data,
+      },
+      { upsert: true, setDefaultsOnInsert: true }
+    );
+  }
+}
+
+async function initAddSpaceByAddSpace(
+  provider,
+  EstateContract,
+  filterAddSpace
+) {
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsAddSpace = await EstateContract.queryFilter(
+    filterAddSpace,
+    from,
+    "latest"
+  );
+  for (let i = 0; i < logsAddSpace.length; i++) {
+    let AddSpaceData = logsAddSpace[i].args;
+    let space = await Map.findOne({
+      tokenId: AddSpaceData._spaceId.toString(),
+    });
+    if (space) {
+      await Map.updateOne(
+        { tokenId: AddSpaceData._spaceId.toString() },
+        {
+          space,
+          estateId: AddSpaceData._estateId.toString(),
+        }
+      );
+    } else {
+      console.log(
+        "Can not find tokenId Please solve the tokenId encoding issue asap."
+      );
+    }
+  }
 }
 
 module.exports = {
@@ -373,4 +416,6 @@ module.exports = {
   initOrderByOrderEvent,
   initBidEventByBidEvent,
   initBidByBidEvent,
+  initEstateByEstateEvent,
+  initAddSpaceByAddSpace,
 };
