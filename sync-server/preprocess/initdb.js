@@ -5,6 +5,7 @@ const Order = require("../../models/OrderModel");
 const BidEvent = require("../../models/BidEventModel");
 const Bid = require("../../models/BidModel");
 const Estate = require("../../models/EstateModel");
+const Space = require("../../models/SpaceModel");
 const { initMap } = require("../../preprocess/initdb");
 
 const { encodeTokenId } = require("../utility/util");
@@ -40,8 +41,8 @@ async function initMapWithTokenIds() {
       });
     }
   }
+  console.log("* Done! Initializing map data with (tokenId)");
 }
-console.log("* Done! Initializing map data with (tokenId)");
 
 async function initMapByTransferEvent(
   provider,
@@ -76,16 +77,6 @@ async function initMapByTransferEvent(
     let previousOwner = log.args.from.toString();
     let currentOwner = log.args.to.toString();
 
-    console.log(
-      "=========================Transfer Item==========================="
-    );
-    console.log("assetId: ", assetId);
-    console.log("previousOwner: ", previousOwner);
-    console.log("currentOwner: ", currentOwner);
-    console.log(
-      "================================================================="
-    );
-
     let transfer = await Transfer.findOne({
       $and: [{ txHash: txHash }, { tokenId: assetId }],
     });
@@ -112,26 +103,28 @@ async function initMapByTransferEvent(
         { id: space.id },
         {
           space,
-          owner: currentOwner,
           type: TILE_TYPES.OWNED,
           updatedAt: Math.floor(Date.now() / 1000),
         }
       );
-      successCount++;
     } else {
-      failedCount++;
       console.log(
         "!!! Can not find space in maps collection for tokenId",
         assetId
       );
     }
+
+    await Space.updateOne(
+      { spaceId: assetId },
+      {
+        spaceId: assetId,
+        spaceAddress: currentOwner,
+        metaData: "",
+      },
+      { upsert: true, setDefaultsOnInsert: true }
+    );
   }
-  console.log(
-    "* Done! For synchronizing owner data for each spaces for previous blocks to current block"
-  );
-  console.log(
-    "=========================Synchronizing previous Transfers Status==========================="
-  );
+
   console.log(
     " * Total transfers from block " +
       DEPLOY.SPACE_PROXY_DEPLOY_BLOCK +
@@ -140,24 +133,12 @@ async function initMapByTransferEvent(
       ": " +
       logsTransfer.length
   );
-  console.log(" * Successfully saved on maps collection : ", successCount);
-  console.log(
-    " * Failed saving on maps collection as no tokenId found : ",
-    failedCount
-  );
-
-  // Should do sth if failed exist
-  if (failedCount > 0)
-    console.log("!!! Checkout assests again and should add them");
 
   console.log(
     " * Existing Transfer events in transfers collection : ",
     txExistCnt
   );
   console.log(" * Newly detected events while syncing : ", txNewCnt++);
-  console.log(
-    "============================================================================================"
-  );
 }
 
 async function initOrderEventByOrderEvent(
