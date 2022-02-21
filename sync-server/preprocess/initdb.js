@@ -2,11 +2,13 @@ const Map = require("../../models/MapModel");
 const Transfer = require("../../models/TransferModel");
 const OrderEvent = require("../../models/OrderEventModel");
 const Order = require("../../models/OrderModel");
+const BidEvent = require("../../models/BidEventModel");
+const Bid = require("../../models/BidModel");
 const { initMap } = require("../../preprocess/initdb");
 
 const { encodeTokenId } = require("../utility/util");
 const { TILE_TYPES } = require("../../common/db.const");
-const { DEPLOY, orderEventName } = require("../const/sync.const");
+const { DEPLOY, orderEventName, bidEventName } = require("../const/sync.const");
 
 async function initMapWithTokenIds() {
   console.log("*** Initializing map data including ownership...");
@@ -261,9 +263,114 @@ async function initOrderByOrderEvent(
     );
   });
 }
+
+async function initBidEventByBidEvent(
+  provider,
+  BidContract,
+  filterBidEvent
+) {
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsBidEvent = await BidContract.queryFilter(
+    filterBidEvent,
+    from,
+    "latest"
+  );
+  let bidEventUpdates = [];
+  for (let i = 0; i < logsBidEvent.length; i++) {
+    // generate assetId if not exist
+    if (bidEventName.includes(logsBidEvent[i].event)) {
+      let bidEventUpdate = {};
+      let bid = logsBidEvent[i];
+      bidEventUpdate.id = bid.args._id;
+      bidEventUpdate.eventName = bid.event;
+      bidEventUpdate.eventParams = {
+        tokenAddress: bid.args._tokenAddress,
+        tokenId: bid.args._tokenId?.toString(),
+        bidder: bid.args._bidder,
+        seller: bid.args._seller,
+        price: bid.args._price?.toString(),
+        fee: bid.args._fee?.toString(),
+        fingerprint: bid.args._fingerprint,
+        expiresAt: bid.args._expiresAt?.toString(),
+      };
+      bidEventUpdates.push(bidEventUpdate);
+    }
+  }
+  var bidEventdata = await BidEvent.find().lean();
+  if (bidEventdata.length === 0) {
+    BidEvent.insertMany(bidEventUpdates);
+  } else {
+    bidEventUpdates.forEach(async (bidEventUpdate) => {
+      await BidEvent.updateOne(
+        { id: bidEventUpdate.id },
+        bidEventUpdate,
+        {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        }
+      );
+    });
+  }
+}
+
+async function initBidByBidEvent(
+  provider,
+  BidContract,
+  filterBidEvent
+) {
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsBid = await BidContract.queryFilter(
+    filterBidEvent,
+    from,
+    "latest"
+  );
+  let bidUpdates = [];
+  for (let i = 0; i < logsBid.length; i++) {
+    // generate assetId if not exist
+    if (bidEventName.includes(logsBid[i].event)) {
+      let bidUpdate = {};
+      let bid = logsBid[i];
+      bidUpdate.id = bid.args._id;
+      bidUpdate.tokenAddress= bid.args._tokenAddress;
+      bidUpdate.tokenId= bid.args._tokenId?.toString();
+      bidUpdate.bidder= bid.args._bidder;
+      if(bid.event === 'BidCreated') {
+        bidUpdate.price= bid.args._price?.toString();
+        bidUpdate.fingerprint= bid.args._fingerprint;
+        bidUpdate.expiresAt= bid.args._expiresAt?.toString();
+        bidUpdate.bidStatus = "active";
+      }else if(bid.event === 'BidAccepted') {
+        bidUpdate.seller= bid.args._seller;
+        bidUpdate.price= bid.args._price?.toString();
+        bidUpdate.fee= bid.args._fee?.toString();
+        bidUpdate.bidStatus = "success";
+      }else if(bid.event === 'BidCancelled'){
+        bidUpdate.bidStatus = "cancel";
+      }
+      bidUpdates.push(bidUpdate);
+    }
+  }
+  bidUpdates.forEach(async (bidUpdate) => {
+    await Bid.updateOne(
+      { id: bidUpdate.id },
+      bidUpdate,
+      {
+        upsert: true,
+        setDefaultsOnInsert: true,
+      }
+    );
+  });
+}
+
 module.exports = {
   initMapWithTokenIds,
   initMapByTransferEvent,
   initOrderEventByOrderEvent,
   initOrderByOrderEvent,
+  initBidEventByBidEvent,
+  initBidByBidEvent,
 };
