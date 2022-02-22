@@ -37,7 +37,7 @@ exports.getBidsByBidder = async (req, res) => {
       {
         $and: [{ bidder: { $regex: new RegExp(`^${bidder}$`, "i") } }],
       },
-      { _id: 0, __v: 0, bidStatus: 0 }
+      { _id: 0, __v: 0 }
     ).lean();
     return res.json({ ok: true, data: bids, error: "" });
   } catch (err) {
