@@ -52,6 +52,7 @@ exports.getMap = async (req, res) => {
         if (mapData[i].estateId) {
           data[mapData[i].id].estateId = mapData[i].estateId;
           data[mapData[i].id].owner = mapData[i].estates.estateAddress;
+          data[mapData[i].id].name = mapData[i].estates.metaData;
         } else if (mapData[i].spaces) {
           data[mapData[i].id].owner = mapData[i].spaces.spaceAddress;
         }
