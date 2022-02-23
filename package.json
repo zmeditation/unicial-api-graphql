@@ -5,11 +5,11 @@
   "scripts": {
     "start": "node ./bin/www",
     "api": "nodemon ./bin/www",
-    "sync": "concurrently \"npm run sync-transfer\" \"npm run sync-order\" \"npm run sync-bid\" \"npm run sync-estate\"",
+    "sync": "concurrently \"npm run sync-order\" \"npm run sync-bid\" \"npm run sync-estate\" \"npm run sync-transfer\" ",
     "sync-order": "nodemon ./sync-server/order.sync.js",
     "sync-bid": "nodemon ./sync-server/bid.sync.js",
     "sync-estate": "nodemon ./sync-server/estate.sync.js",
-    "sync-transfer": "nodemon ./sync-server/transfer.sync.js",
+    "sync-transfer": "nodemon ./sync-server/spaceTransfer.sync.js",
     "sync-map": "nodemon ./sync-server/map.sync.js",
     "test": "nyc _mocha --timeout 10000 --exit --report lcovonly -- -R spec",
     "lint": "eslint --fix --config .eslintrc.json \"**/*.js\""

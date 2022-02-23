@@ -390,6 +390,43 @@ async function initAddSpaceByAddSpace(
   }
 }
 
+async function initEstateByEstateTransferEvent(
+  provider,
+  EstateContract,
+  filterEstateTransfer
+) {
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsTransfer = await EstateContract.queryFilter(
+    filterEstateTransfer,
+    from,
+    "latest"
+  );
+
+  for (let i = 0; i < logsTransfer.length; i++) {
+    let estateLogData = logsTransfer[i].args;
+    let estateData = await Estate.findOne({
+      estateId: estateLogData.tokenId.toString(),
+      estateAddress: estateLogData.from,
+    });
+    if (estateData) {
+      await Estate.updateOne(
+        {
+          estateId: estateData.estateId,
+          estateAddress: estateData.estateAddress,
+          metaData: estateData.metaData,
+        },
+        {
+          estateData,
+          estateAddress: estateLogData.to,
+        },
+        { upsert: true, setDefaultsOnInsert: true }
+      );
+    }
+  }
+}
+
 module.exports = {
   initMapWithTokenIds,
   initMapByTransferEvent,
@@ -399,4 +436,5 @@ module.exports = {
   initBidByBidEvent,
   initEstateByEstateEvent,
   initAddSpaceByAddSpace,
+  initEstateByEstateTransferEvent,
 };

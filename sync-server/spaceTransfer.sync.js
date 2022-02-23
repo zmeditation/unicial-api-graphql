@@ -13,6 +13,7 @@ const {
   SpaceRegistryAbi,
   SpaceProxyAddress,
 } = require("../common/contracts/SpaceRegistryContract");
+
 const { TILE_TYPES } = require("../common/db.const");
 
 // DB connection
@@ -35,16 +36,19 @@ mongoose
       CHAIN_INFO.TESTNET.rpcUrls[0]
     );
 
+    // create contract
     var spaceRegistryContract = new ethers.Contract(
       SpaceProxyAddress,
       SpaceRegistryAbi,
       provider
     );
-    var filterTransfer = spaceRegistryContract.filters.Transfer();
+
+    var filterSpaceTransfer = spaceRegistryContract.filters.Transfer();
+
     await initMapByTransferEvent(
       provider,
       spaceRegistryContract,
-      filterTransfer,
+      filterSpaceTransfer,
       SpaceProxyAddress
     );
 

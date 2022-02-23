@@ -5,6 +5,7 @@ const Map = require("../models/MapModel");
 const {
   initEstateByEstateEvent,
   initAddSpaceByAddSpace,
+  initEstateByEstateTransferEvent,
 } = require("./preprocess/initdb");
 const { CHAIN_INFO } = require("../common/const");
 const {
@@ -40,6 +41,7 @@ mongoose
 
     var filterCreateEstate = EstateContract.filters.CreateEstate();
     var filterAddSpace = EstateContract.filters.AddSpace();
+    var filterTransfer = EstateContract.filters.Transfer();
 
     await initEstateByEstateEvent(provider, EstateContract, filterCreateEstate);
     console.log("End Init Estate Create");
@@ -47,10 +49,18 @@ mongoose
     await initAddSpaceByAddSpace(provider, EstateContract, filterAddSpace);
     console.log("Added EstateId to Map");
 
+    await initEstateByEstateTransferEvent(
+      provider,
+      EstateContract,
+      filterTransfer
+    );
+    console.log("Added EstateId for transfer");
+
     console.log(
-      "Listening Estate Create event and AddSpace from EstateRegistry contract..."
+      "Listening Estate Create event, AddSpace, Transfer Estate from EstateRegistry contract..."
     );
 
+    // Listening CreateEstate event of EstateContract
     EstateContract.on("CreateEstate", async (_owner, _estateId, _data) => {
       console.log("--- CreateEstate Event occured ---");
       await Estate.updateOne(
@@ -64,6 +74,7 @@ mongoose
       );
     });
 
+    // Listening AddSpace event of EstateContract
     EstateContract.on("AddSpace", async (_estateId, _spaceId) => {
       console.log("--- AddSpace Event occured ---");
       let space = await Map.findOne({
@@ -80,6 +91,31 @@ mongoose
       } else {
         console.log(
           "Can not find tokenId Please solve the tokenId encoding issue asap."
+        );
+      }
+    });
+
+    // Listening Transfer event of EstateContract
+    EstateContract.on("Transfer", async (from, to, tokenId) => {
+      console.log("--- TransferEstate Event occured ---");
+
+      let estateData = await Estate.findOne({
+        estateId: tokenId.toString(),
+        estateAddress: from,
+      });
+
+      if (estateData) {
+        await Estate.updateOne(
+          {
+            estateId: estateData.estateId,
+            estateAddress: estateData.estateAddress,
+            metaData: estateData.metaData,
+          },
+          {
+            estateData,
+            estateAddress: to,
+          },
+          { upsert: true, setDefaultsOnInsert: true }
         );
       }
     });
