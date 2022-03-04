@@ -1,23 +1,6 @@
 require("dotenv").config();
-const { ethers } = require("ethers");
 
-const Map = require("../models/MapModel");
-const Transfer = require("../models/TransferModel");
-
-const {
-  initMapWithTokenIds,
-  initMapByTransferEvent,
-} = require("./preprocess/initdb");
-
-// import constants
-const { CHAIN_INFO } = require("../common/const");
-const {
-  SpaceRegistryAddress,
-  SpaceRegistryAbi,
-  SpaceProxyAddress,
-  SpaceProxyAbi,
-} = require("../common/contracts/SpaceRegistryContract");
-const { TILE_TYPES } = require("../common/db.const");
+const { initMapWithTokenIds } = require("./preprocess/initdb");
 
 // DB connection
 var MONGODB_URL = process.env.MONGODB_URL;

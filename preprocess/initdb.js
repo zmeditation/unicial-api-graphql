@@ -12,13 +12,13 @@ async function initMap() {
   if (mapCounts > 0) return;
 
   var data = fs
-    .readFileSync(path.join(__dirname, "../data/brasbasah.csv"))
+    .readFileSync(path.join(__dirname, "../data/unicial-map.csv"))
     .toString() // convert Buffer to string
     .split("\n") // split string to lines
     .map((e) => e.trim()) // remove white spaces for each line
     .map((e) => e.split(",").map((e) => e.trim())); // split each line to array
 
-  var mapHeight = data.length;
+  var mapHeight = data[0].length;
   var mapWidth = data[0].length;
   console.log("mapHeight", mapHeight);
   console.log("mapWidth", mapWidth);
@@ -38,24 +38,24 @@ async function initMap() {
       type = INIT_MAP_TO_TYPE[data[hIndex][wIndex]];
       updatedAt = Math.floor(Date.now() / 1000);
       // handle top, left & topLeft for border
-      if ([TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(type)) {
-        // check upper cell: if it is road remove border by setting its top to true
-        if (
-          [TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(
-            INIT_MAP_TO_TYPE[data[hIndex][wIndex]]
-          )
-        )
-          map.top = true;
-
-        // check left  cell: if it is road remove border by setting its left to true
-        if (
-          [TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(
-            INIT_MAP_TO_TYPE[data[hIndex][wIndex]]
-          )
-        )
-          map.left = true;
-        map.topLeft = true;
-      }
+      map.top = true;
+      map.left = true;
+      map.topLeft = true;
+      // if ([TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(type)) {
+      //   if (
+      //     [TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(
+      //       INIT_MAP_TO_TYPE[data[hIndex][wIndex]]
+      //     )
+      //   )
+      //     map.top = true;
+      //   if (
+      //     [TILE_TYPES.ROAD, TILE_TYPES.DISTRICT].includes(
+      //       INIT_MAP_TO_TYPE[data[hIndex][wIndex]]
+      //     )
+      //   )
+      //     map.left = true;
+      //   map.topLeft = true;
+      // }
       map.x = x;
       map.y = y;
       map.id = id;
