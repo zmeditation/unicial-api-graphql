@@ -12,8 +12,8 @@ const {
 // import constants
 const { CHAIN_INFO } = require("../common/const");
 const {
-    BidContractAbi,
-    BidContractAddress,
+  BidContractAbi,
+  BidContractAddress,
 } = require("../common/contracts/BidContract");
 
 // init provider and contracts
@@ -23,9 +23,9 @@ var provider = new ethers.providers.JsonRpcProvider(
 );
 
 var BidContract = new ethers.Contract(
-    BidContractAddress,
-    BidContractAbi,
-    provider
+  BidContractAddress,
+  BidContractAbi,
+  provider
 );
 
 // DB connection
@@ -52,7 +52,16 @@ mongoose
 
     BidContract.on(
       "BidCreated",
-      async (_id, _tokenAddress, _tokenId, _bidder, _price, _expiresAt, _fingerprint, event) => {
+      async (
+        _id,
+        _tokenAddress,
+        _tokenId,
+        _bidder,
+        _price,
+        _expiresAt,
+        _fingerprint,
+        event
+      ) => {
         console.log("--- BidCreated Event occured ---");
         await BidEvent.create({
           id: _id,
@@ -81,7 +90,7 @@ mongoose
             price: _price?.toString(),
             fingerprint: _fingerprint,
             expiresAt: _expiresAt?.toString(),
-            orderStatus: "active",
+            bidStatus: "active",
           },
           {
             upsert: true,
@@ -92,7 +101,16 @@ mongoose
     );
     BidContract.on(
       "BidAccepted",
-      async (_id, _tokenAddress, _tokenId, _bidder, _seller, _price, _fee, event) => {
+      async (
+        _id,
+        _tokenAddress,
+        _tokenId,
+        _bidder,
+        _seller,
+        _price,
+        _fee,
+        event
+      ) => {
         console.log("--- BidAccepted Event occured ---");
         await BidEvent.create({
           id: _id,
@@ -120,7 +138,7 @@ mongoose
             price: _price?.toString(),
             seller: _seller,
             fee: _fee,
-            orderStatus: "success",
+            bidStatus: "success",
           },
           {
             upsert: true,
@@ -153,7 +171,7 @@ mongoose
             tokenAddress: _tokenAddress,
             tokenId: _tokenId?.toString(),
             bidder: _bidder,
-            orderStatus: "cancel",
+            bidStatus: "cancel",
           },
           {
             upsert: true,

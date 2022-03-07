@@ -584,6 +584,51 @@ const EstateRegistryAbi = [
     inputs: [
       {
         internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+    ],
+    name: "tokenByIndex",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+    ],
+    name: "tokenOfOwnerByIndex",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
       },
@@ -594,6 +639,20 @@ const EstateRegistryAbi = [
         internalType: "string",
         name: "",
         type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+    constant: true,
+  },
+  {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -680,45 +739,6 @@ const EstateRegistryAbi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "totalSupply",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-    constant: true,
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_owner",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_index",
-        type: "uint256",
-      },
-    ],
-    name: "tokenOfOwnerByIndex",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-    constant: true,
   },
   {
     inputs: [
@@ -1232,12 +1252,9 @@ const EstateRegistryAbi = [
   },
 ];
 
-const EstateRegistryAddress = "0xEbF2c1571c631f04e30396E6eF615c7B5137dF53";
-
-const EstateProxyAddress = "0xa92bB248eFA35EA300aA554a4856d0995F43358C ";
+const EstateProxyAddress = "0x2A1BEF23cA68a94b34DE80424695511932D0B0b3";
 
 module.exports = {
-  EstateRegistryAddress,
   EstateRegistryAbi,
   EstateProxyAddress,
 };
