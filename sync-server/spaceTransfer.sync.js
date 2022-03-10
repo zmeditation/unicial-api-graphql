@@ -83,12 +83,11 @@ mongoose
 
       let space = await Map.findOne({ tokenId: assetId.toString() });
       if (space) {
-        space.type = TILE_TYPES.OWNED;
+        if (space.type !== TILE_TYPES.PLAZA) space.type = TILE_TYPES.OWNED;
         await Map.updateOne(
           { id: space.id },
           {
             space,
-            type: TILE_TYPES.OWNED,
             updatedAt: Math.floor(Date.now() / 1000),
           }
         );
