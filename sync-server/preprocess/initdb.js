@@ -103,6 +103,16 @@ async function initMapByTransferEvent(
         space.top = false;
         space.left = false;
         space.topLeft = false;
+        await Map.findOneAndUpdate(
+          { x: space.x + 1, y: space.y },
+          { left: false },
+          { useFindAndModify: false }
+        );
+        await Map.findOneAndUpdate(
+          { x: space.x, y: space.y - 1 },
+          { top: false },
+          { useFindAndModify: false }
+        );
       }
       space.updatedAt = Math.floor(Date.now() / 1000);
       await Map.updateOne({ tokenId: space.tokenId }, space, {
