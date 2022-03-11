@@ -7,58 +7,12 @@ const { randomIntFromInterval } = require("../helpers/utility");
 
 exports.getMap = async (req, res) => {
   try {
+    var mapData = await Map.find({}, { _id: 0, __v: 0 }).lean();
     var data = {};
-    Map.aggregate([
-      {
-        $lookup: {
-          from: "spaces",
-          localField: "tokenId",
-          foreignField: "spaceId",
-          as: "spaces",
-        },
-      },
-      {
-        $unwind: {
-          path: "$spaces",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "estates",
-          localField: "estateId",
-          foreignField: "estateId",
-          as: "estates",
-        },
-      },
-      {
-        $unwind: {
-          path: "$estates",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-    ]).exec(function (err, mapData) {
-      for (let i = 0; i < mapData.length; i++) {
-        data[mapData[i].id] = {
-          type: mapData[i].type,
-          top: mapData[i].top,
-          left: mapData[i].left,
-          topLeft: mapData[i].topLeft,
-          x: mapData[i].x,
-          y: mapData[i].y,
-          id: mapData[i].id,
-          tokenId: mapData[i].tokenId,
-        };
-        if (mapData[i].estateId) {
-          data[mapData[i].id].estateId = mapData[i].estateId;
-          data[mapData[i].id].owner = mapData[i].estates.estateAddress;
-          data[mapData[i].id].name = mapData[i].estates.metaData;
-        } else if (mapData[i].spaces) {
-          data[mapData[i].id].owner = mapData[i].spaces.spaceAddress;
-        }
-      }
-      return res.json({ ok: true, data: data, error: "" });
-    });
+    for (let i = 0; i < mapData.length; i++) {
+      data[mapData[i].id] = mapData[i];
+    }
+    return res.json({ ok: true, data: data, error: "" });
   } catch (err) {
     return res.json({ ok: false, error: err.message });
   }

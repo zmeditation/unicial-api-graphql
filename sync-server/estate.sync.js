@@ -80,14 +80,14 @@ mongoose
       let space = await Map.findOne({
         tokenId: _spaceId.toString(),
       });
-      if (space) {
-        await Map.updateOne(
-          { tokenId: _spaceId.toString() },
-          {
-            space,
-            estateId: _estateId.toString(),
-          }
-        );
+      let estateData = await Estate.findOne({
+        estateId: _estateId.toString(),
+      });
+      if (space && estateData) {
+        space.owner = estateData.estateAddress;
+        space.name = estateData.metaData;
+        space.estateId = _estateId.toString();
+        await Map.updateOne({ tokenId: _spaceId.toString() }, space);
       } else {
         console.log(
           "Can not find tokenId Please solve the tokenId encoding issue asap."
@@ -105,17 +105,19 @@ mongoose
       });
 
       if (estateData) {
+        estateData.estateAddress = to;
         await Estate.updateOne(
           {
-            estateId: estateData.estateId,
-            estateAddress: estateData.estateAddress,
-            metaData: estateData.metaData,
+            estateId: tokenId.toString(),
           },
-          {
-            estateData,
-            estateAddress: to,
-          },
+          estateData,
           { upsert: true, setDefaultsOnInsert: true }
+        );
+        await Map.updateMany(
+          { estateId: tokenId.toString() },
+          { owner: to },
+          { multiple: true },
+          (err, writeResult) => {}
         );
       }
     });

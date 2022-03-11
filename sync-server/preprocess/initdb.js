@@ -12,6 +12,10 @@ const { encodeTokenId } = require("../utility/util");
 const { TILE_TYPES } = require("../../common/db.const");
 const { DEPLOY, orderEventName, bidEventName } = require("../const/sync.const");
 
+const {
+  EstateProxyAddress,
+} = require("../../common/contracts/EstateRegistryContract");
+
 async function initMapWithTokenIds() {
   console.log("*** Initializing map data including ownership...");
   var spaces = await Map.find().lean();
@@ -97,6 +101,11 @@ async function initMapByTransferEvent(
     }
 
     space = await Map.findOne({ tokenId: assetId });
+    if (currentOwner !== EstateProxyAddress) {
+      space.owner = currentOwner;
+      space.name = "";
+    } else {
+    }
     if (space) {
       if (space.type !== TILE_TYPES.PLAZA) {
         space.type = TILE_TYPES.OWNED;
@@ -386,14 +395,14 @@ async function initAddSpaceByAddSpace(
     let space = await Map.findOne({
       tokenId: AddSpaceData._spaceId.toString(),
     });
-    if (space) {
-      await Map.updateOne(
-        { tokenId: AddSpaceData._spaceId.toString() },
-        {
-          space,
-          estateId: AddSpaceData._estateId.toString(),
-        }
-      );
+    let estateData = await Estate.findOne({
+      estateId: AddSpaceData._estateId.toString(),
+    });
+    if (space && estateData) {
+      space.owner = estateData.estateAddress;
+      space.name = estateData.metaData;
+      space.estateId = AddSpaceData._estateId.toString();
+      await Map.updateOne({ tokenId: AddSpaceData._spaceId.toString() }, space);
     } else {
       console.log(
         "Can not find tokenId Please solve the tokenId encoding issue asap."
@@ -423,17 +432,19 @@ async function initEstateByEstateTransferEvent(
       estateAddress: estateLogData.from,
     });
     if (estateData) {
+      estateData.estateAddress = estateLogData.to;
       await Estate.updateOne(
         {
           estateId: estateData.estateId,
-          estateAddress: estateData.estateAddress,
-          metaData: estateData.metaData,
         },
-        {
-          estateData,
-          estateAddress: estateLogData.to,
-        },
+        estateData,
         { upsert: true, setDefaultsOnInsert: true }
+      );
+      await Map.updateMany(
+        { estateId: estateLogData.tokenId.toString() },
+        { owner: estateLogData.to },
+        { multiple: true },
+        (err, writeResult) => {}
       );
     }
   }
