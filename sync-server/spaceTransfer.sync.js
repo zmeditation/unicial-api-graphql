@@ -83,14 +83,17 @@ mongoose
 
       let space = await Map.findOne({ tokenId: assetId.toString() });
       if (space) {
-        if (space.type !== TILE_TYPES.PLAZA) space.type = TILE_TYPES.OWNED;
-        await Map.updateOne(
-          { id: space.id },
-          {
-            space,
-            updatedAt: Math.floor(Date.now() / 1000),
-          }
-        );
+        if (space.type !== TILE_TYPES.PLAZA) {
+          space.type = TILE_TYPES.OWNED;
+          space.top = false;
+          space.left = false;
+          space.topLeft = false;
+        }
+        space.updatedAt = Math.floor(Date.now() / 1000);
+        await Map.updateOne({ tokenId: space.tokenId }, space, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        });
       } else {
         console.log(
           "Can not find tokenId " +
