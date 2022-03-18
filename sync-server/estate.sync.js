@@ -12,7 +12,7 @@ const {
   EstateRegistryAbi,
   EstateProxyAddress,
 } = require("../common/contracts/EstateRegistryContract");
-
+const { emptyAddress } = require("./const/sync.const");
 // init provider and contracts
 // should be used for http protocol
 var provider = new ethers.providers.JsonRpcProvider(
@@ -62,7 +62,9 @@ mongoose
 
     // Listening CreateEstate event of EstateContract
     EstateContract.on("CreateEstate", async (_owner, _estateId, _data) => {
-      console.log("--- CreateEstate Event occured ---");
+      console.log(
+        `--- CreateEstate Event occured by ${_owner} estateId ${_estateId} data ${_data} ---`
+      );
       await Estate.updateOne(
         { estateId: _estateId.toString() },
         {
@@ -97,13 +99,14 @@ mongoose
 
     // Listening Transfer event of EstateContract
     EstateContract.on("Transfer", async (from, to, tokenId) => {
-      console.log("--- TransferEstate Event occured ---");
+      console.log(
+        `---Estate Transfer Event occured from ${from} to ${to} tokenId ${tokenId.toString()} ---`
+      );
 
       let estateData = await Estate.findOne({
         estateId: tokenId.toString(),
         estateAddress: from,
       });
-
       if (estateData) {
         estateData.estateAddress = to;
         await Estate.updateOne(
@@ -118,6 +121,18 @@ mongoose
           { owner: to },
           { multiple: true },
           (err, writeResult) => {}
+        );
+      } else if (from === emptyAddress) {
+        console.log("This is create Transfer Event by 0x000000000000");
+        await Map.updateMany(
+          { estateId: tokenId.toString() },
+          { owner: to },
+          { multiple: true },
+          (err, writeResult) => {}
+        );
+      } else {
+        console.log(
+          "There is no Estate in Estate collection when the Transfer event occured."
         );
       }
     });
