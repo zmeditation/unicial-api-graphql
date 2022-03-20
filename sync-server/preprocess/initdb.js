@@ -402,7 +402,11 @@ async function initAddSpaceByAddSpace(
       space.owner = estateData.estateAddress;
       space.name = estateData.metaData;
       space.estateId = AddSpaceData._estateId.toString();
-      await Map.updateOne({ tokenId: AddSpaceData._spaceId.toString() }, space);
+      await Map.updateOne(
+        { tokenId: AddSpaceData._spaceId.toString() },
+        space,
+        { upsert: true, setDefaultsOnInsert: true }
+      );
     } else {
       console.log(
         "Can not find tokenId Please solve the tokenId encoding issue asap."
