@@ -52,11 +52,7 @@ exports.getActiveEstates = async (req, res) => {
     ).lean();
     const activeEstates = {};
     activeOrders.forEach((activeOrder) => {
-      var { x, y } = decodeTokenId(activeOrder.assetId);
-      var key = `${x.toString()},${y.toString()}`;
-      activeOrder.x = Number(x);
-      activeOrder.y = Number(y);
-      activeEstates[key] = activeOrder;
+      activeEstates[activeOrder.assetId] = activeOrder;
     });
     return res.json({ ok: true, data: activeEstates, error: "" });
   } catch (err) {
