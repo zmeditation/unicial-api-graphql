@@ -3,5 +3,5 @@ const DEPLOY = {
 };
 const orderEventName = ["OrderCreated", "OrderSuccessful", "OrderCancelled"];
 const bidEventName = ["BidCreated", "BidAccepted", "BidCancelled"];
-
-module.exports = { DEPLOY, orderEventName, bidEventName };
+const emptyAddress = "0x0000000000000000000000000000000000000000";
+module.exports = { DEPLOY, orderEventName, bidEventName, emptyAddress };

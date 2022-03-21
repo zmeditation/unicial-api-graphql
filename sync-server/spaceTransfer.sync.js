@@ -19,6 +19,9 @@ const { TILE_TYPES } = require("../common/db.const");
 // DB connection
 var MONGODB_URL = process.env.MONGODB_URL;
 var mongoose = require("mongoose");
+const {
+  EstateProxyAddress,
+} = require("../common/contracts/EstateRegistryContract");
 
 mongoose
   .connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -83,15 +86,31 @@ mongoose
 
       let space = await Map.findOne({ tokenId: assetId.toString() });
       if (space) {
-        space.type = TILE_TYPES.OWNED;
-        await Map.updateOne(
-          { id: space.id },
-          {
-            space,
-            type: TILE_TYPES.OWNED,
-            updatedAt: Math.floor(Date.now() / 1000),
-          }
-        );
+        if (to !== EstateProxyAddress) {
+          space.owner = to;
+          space.name = "";
+        }
+        if (space.type !== TILE_TYPES.PLAZA) {
+          space.type = TILE_TYPES.OWNED;
+          space.top = false;
+          space.left = false;
+          space.topLeft = false;
+          await Map.findOneAndUpdate(
+            { x: space.x + 1, y: space.y },
+            { left: false },
+            { useFindAndModify: false }
+          );
+          await Map.findOneAndUpdate(
+            { x: space.x, y: space.y - 1 },
+            { top: false },
+            { useFindAndModify: false }
+          );
+        }
+        space.updatedAt = Math.floor(Date.now() / 1000);
+        await Map.updateOne({ tokenId: space.tokenId }, space, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        });
       } else {
         console.log(
           "Can not find tokenId " +
