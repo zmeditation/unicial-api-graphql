@@ -104,6 +104,7 @@ async function initMapByTransferEvent(
     if (currentOwner !== EstateProxyAddress) {
       space.owner = currentOwner;
       space.name = "";
+      space.estateId = "";
     } else {
     }
     if (space) {
