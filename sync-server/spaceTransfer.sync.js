@@ -89,6 +89,7 @@ mongoose
         if (to !== EstateProxyAddress) {
           space.owner = to;
           space.name = "";
+          space.estateId = "";
         }
         if (space.type !== TILE_TYPES.PLAZA) {
           space.type = TILE_TYPES.OWNED;

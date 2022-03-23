@@ -59,3 +59,23 @@ exports.getActiveEstates = async (req, res) => {
     return res.json({ ok: false, error: err.message });
   }
 };
+
+exports.getSuccessData = async (req, res) => {
+  try {
+    var currentDate = new Date();
+    var currentTimestamp = currentDate.getTime() / 1000;
+    const successOrders = await Order.find(
+      {
+        $and: [
+          { orderStatus: ORDER_STATUS.success },
+          { expiresAt: { $gte: currentTimestamp } },
+        ],
+      },
+      { _id: 0, __v: 0, orderStatus: 0 }
+    ).lean();
+
+    return res.json({ ok: true, data: successOrders, error: "" });
+  } catch (err) {
+    return res.json({ ok: false, error: err.message });
+  }
+};
