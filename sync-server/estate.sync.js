@@ -87,19 +87,23 @@ mongoose
       let space = await Map.findOne({
         tokenId: _spaceId.toString(),
       });
-      let estateData = await Estate.findOne({
-        estateId: _estateId.toString(),
-      });
-      if (space && estateData) {
-        space.owner = estateData.estateAddress;
-        space.name = estateData.metaData;
-        space.estateId = _estateId.toString();
-        await Map.updateOne({ tokenId: _spaceId.toString() }, space);
-      } else {
-        console.log(
-          "Can not find tokenId Please solve the tokenId encoding issue asap."
-        );
-      }
+      let estateData = null;
+      do {
+        estateData = await Estate.findOne({
+          estateId: _estateId.toString(),
+        });
+        if (space && estateData) {
+          space.owner = estateData.estateAddress;
+          space.name = estateData.metaData;
+          space.estateId = _estateId.toString();
+          await Map.updateOne({ tokenId: _spaceId.toString() }, space);
+        } else {
+          estateData = null;
+          console.log(
+            "Can not find tokenId Please solve the tokenId encoding issue asap."
+          );
+        }
+      } while (estateData === null);
     });
 
     // Listening Transfer event of EstateContract
