@@ -6,6 +6,7 @@ const {
   initEstateByEstateEvent,
   initAddSpaceByAddSpace,
   initEstateByEstateTransferEvent,
+  initUpdateEstate,
 } = require("./preprocess/initdb");
 const { CHAIN_INFO } = require("../common/const");
 const {
@@ -42,6 +43,7 @@ mongoose
     var filterCreateEstate = EstateContract.filters.CreateEstate();
     var filterAddSpace = EstateContract.filters.AddSpace();
     var filterTransfer = EstateContract.filters.Transfer();
+    var filterUpdate = EstateContract.filters.Update();
 
     await initEstateByEstateEvent(provider, EstateContract, filterCreateEstate);
     console.log("End Init Estate Create");
@@ -55,6 +57,9 @@ mongoose
       filterTransfer
     );
     console.log("Added EstateId for transfer");
+
+    await initUpdateEstate(provider, EstateContract, filterUpdate);
+    console.log("Updated Estate");
 
     console.log(
       "Listening Estate Create event, AddSpace, Transfer Estate from EstateRegistry contract..."
@@ -82,19 +87,23 @@ mongoose
       let space = await Map.findOne({
         tokenId: _spaceId.toString(),
       });
-      let estateData = await Estate.findOne({
-        estateId: _estateId.toString(),
-      });
-      if (space && estateData) {
-        space.owner = estateData.estateAddress;
-        space.name = estateData.metaData;
-        space.estateId = _estateId.toString();
-        await Map.updateOne({ tokenId: _spaceId.toString() }, space);
-      } else {
-        console.log(
-          "Can not find tokenId Please solve the tokenId encoding issue asap."
-        );
-      }
+      let estateData = null;
+      do {
+        estateData = await Estate.findOne({
+          estateId: _estateId.toString(),
+        });
+        if (space && estateData) {
+          space.owner = estateData.estateAddress;
+          space.name = estateData.metaData;
+          space.estateId = _estateId.toString();
+          await Map.updateOne({ tokenId: _spaceId.toString() }, space);
+        } else {
+          estateData = null;
+          console.log(
+            "Can not find tokenId Please solve the tokenId encoding issue asap."
+          );
+        }
+      } while (estateData === null);
     });
 
     // Listening Transfer event of EstateContract
@@ -133,6 +142,37 @@ mongoose
       } else {
         console.log(
           "There is no Estate in Estate collection when the Transfer event occured."
+        );
+      }
+    });
+
+    // Listening Update event of EstateContract
+    EstateContract.on("Update", async (_assetId, _holder, _operator, _data) => {
+      console.log(
+        `---Estate Update Event occured from Estate id ${_assetId.toString()}, metadata is ${_data} ---`
+      );
+
+      let estateData = await Estate.findOne({
+        estateId: _assetId.toString(),
+      });
+      if (estateData) {
+        estateData.metaData = _data;
+        await Estate.updateOne(
+          {
+            estateId: _assetId.toString(),
+          },
+          estateData,
+          { upsert: true, setDefaultsOnInsert: true }
+        );
+        await Map.updateMany(
+          { estateId: _assetId.toString() },
+          { name: _data },
+          { multiple: true },
+          (err, writeResult) => {}
+        );
+      } else {
+        console.log(
+          "There is no Estate in Estate collection when the Update event occured."
         );
       }
     });

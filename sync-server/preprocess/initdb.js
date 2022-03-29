@@ -104,8 +104,11 @@ async function initMapByTransferEvent(
     if (currentOwner !== EstateProxyAddress) {
       space.owner = currentOwner;
       space.name = "";
+    }
+    if (previousOwner === EstateProxyAddress) {
+      space.name = "";
       space.estateId = "";
-    } else {
+      space.owner = currentOwner;
     }
     if (space) {
       if (space.type !== TILE_TYPES.PLAZA) {
@@ -455,6 +458,39 @@ async function initEstateByEstateTransferEvent(
   }
 }
 
+async function initUpdateEstate(provider, EstateContract, filterUpdate) {
+  var latestBlock = await provider.getBlockNumber();
+  var from = DEPLOY.SPACE_PROXY_DEPLOY_BLOCK - latestBlock;
+
+  var logsUpdate = await EstateContract.queryFilter(
+    filterUpdate,
+    from,
+    "latest"
+  );
+
+  for (let i = 0; i < logsUpdate.length; i++) {
+    let estateLogData = logsUpdate[i].args;
+    let estateData = await Estate.findOne({
+      estateId: estateLogData._assetId.toString(),
+    });
+    if (estateData) {
+      estateData.metaData = estateLogData._data;
+      await Estate.updateOne(
+        {
+          estateId: estateData.estateId,
+        },
+        estateData,
+        { upsert: true, setDefaultsOnInsert: true }
+      );
+      await Map.updateMany(
+        { estateId: estateLogData._assetId.toString() },
+        { name: estateLogData._data },
+        { multiple: true },
+        (err, writeResult) => {}
+      );
+    }
+  }
+}
 module.exports = {
   initMapWithTokenIds,
   initMapByTransferEvent,
@@ -465,4 +501,5 @@ module.exports = {
   initEstateByEstateEvent,
   initAddSpaceByAddSpace,
   initEstateByEstateTransferEvent,
+  initUpdateEstate,
 };
