@@ -110,6 +110,11 @@ mongoose
             { top: false },
             { useFindAndModify: false }
           );
+          await Map.findOneAndUpdate(
+            { x: space.x + 1, y: space.y - 1 },
+            { topLeft: false },
+            { useFindAndModify: false }
+          );
         }
         space.updatedAt = Math.floor(Date.now() / 1000);
         await Map.updateOne({ tokenId: space.tokenId }, space, {
