@@ -4,6 +4,7 @@ var parcelRouter = require("./parcel");
 var estateRouter = require("./estate");
 var storeRouter = require("./store");
 var bidRouter = require("./bid");
+var graphqlRouter = require("./graphql");
 
 var app = express();
 
@@ -27,5 +28,9 @@ app.use("/estate/", estateRouter);
 // @desc     Get bid related data
 // @access   Public
 app.use("/bid/", bidRouter);
+// @route    GET /api/v1/graphql
+// @desc     Get graphql related data
+// @access   Public
+app.use("/graphql/", graphqlRouter);
 
 module.exports = app;
