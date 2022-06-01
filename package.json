@@ -11,6 +11,7 @@
     "sync-estate": "nodemon ./sync-server/estate.sync.js",
     "sync-transfer": "nodemon ./sync-server/spaceTransfer.sync.js",
     "sync-map": "nodemon ./sync-server/map.sync.js",
+    "deploy-road": "node ./script/deploy_road.js",
     "test": "nyc _mocha --timeout 10000 --exit --report lcovonly -- -R spec",
     "lint": "eslint --fix --config .eslintrc.json \"**/*.js\""
   },
