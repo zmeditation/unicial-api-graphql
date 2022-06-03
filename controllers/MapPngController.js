@@ -1,16 +1,25 @@
-var Map = require("../models/MapModel");
-const { extractParams } = require("../utils/filter-params");
+const { createCanvas } = require("canvas");
+
+const { extractParams } = require("../helpers/filter-params");
+const { getStream } = require("../modules/map/component");
 
 exports.getMap = async (req, res) => {
   try {
-    const url = req.originalUrl;
-
     const query = req.query;
-    const params = extractParams(query);
+    const { width, height, size, center, selected, showOnSale } =
+      extractParams(query);
 
-    const data = { params: params };
+    const stream = await getStream(
+      width,
+      height,
+      size,
+      center,
+      selected,
+      showOnSale
+    );
 
-    return res.json({ ok: true, data: params, error: "" });
+    res.type("png");
+    stream.pipe(res);
   } catch (err) {
     return res.json({ ok: false, error: err.message });
   }
