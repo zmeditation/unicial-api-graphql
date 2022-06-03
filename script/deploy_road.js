@@ -1,12 +1,16 @@
-var Map = require("../models/MapModel");
 var fs = require("fs");
 var mongoose = require("mongoose");
+var Map = require("../models/MapModel");
+var { ROAD_DISTRICT_ID, ROAD_ESTATE_ID } = require("../common/const");
+require("dotenv").config("../.env");
+
+var MONGODB_URL = process.env.MONGODB_URL;
+
 exports.getDeployRoadData = async () => {
   try {
-    var db = await mongoose.connect("mongodb://localhost:27017", {
+    await mongoose.connect(MONGODB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      dbName: "unicial_db",
     });
     console.log("success connection");
     await Map.aggregate(
@@ -16,17 +20,17 @@ exports.getDeployRoadData = async () => {
             id: 1,
             x: 1,
             y: 1,
-            author: {
+            district_id: {
               $cond: {
                 if: { $eq: ["road", "$type"] },
-                then: "52edce54-568b-48be-b0e8-778c5a57ece9",
+                then: ROAD_DISTRICT_ID,
                 else: null,
               },
             },
             estate_id: {
               $cond: {
                 if: { $eq: ["road", "$type"] },
-                then: "1186",
+                then: ROAD_ESTATE_ID,
                 else: null,
               },
             },
@@ -35,13 +39,16 @@ exports.getDeployRoadData = async () => {
         },
       ],
       function (err, result) {
-        console.log(result.length);
+        console.log("Total parcels: ", result.length, "Writing to file...");
         var JSONResult = JSON.stringify(result);
         fs.writeFileSync("./data/deploy_road_data.json", JSONResult);
+        console.log("Write finished. Exit.");
+        process.exit();
       }
     );
   } catch (error) {
     console.log("Error connection: " + error);
+    process.exit(1);
   }
 };
 this.getDeployRoadData();
