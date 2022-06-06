@@ -111,7 +111,11 @@ async function initMapByTransferEvent(
       space.owner = currentOwner;
     }
     if (space) {
-      if (space.type !== TILE_TYPES.PLAZA) {
+      if (
+        space.type !== TILE_TYPES.PLAZA &&
+        space.type !== TILE_TYPES.ROAD &&
+        space.type !== TILE_TYPES.DISTRICT
+      ) {
         space.type = TILE_TYPES.OWNED;
         space.top = false;
         space.left = false;
@@ -132,6 +136,16 @@ async function initMapByTransferEvent(
           { useFindAndModify: false }
         );
       }
+      space.updatedAt = Math.floor(Date.now() / 1000);
+      await Map.updateOne({ tokenId: space.tokenId }, space, {
+        upsert: true,
+        setDefaultsOnInsert: true,
+      });
+    } else if (
+      space.type === TILE_TYPES.PLAZA ||
+      space.type === TILE_TYPES.ROAD ||
+      space.type === TILE_TYPES.DISTRICT
+    ) {
       space.updatedAt = Math.floor(Date.now() / 1000);
       await Map.updateOne({ tokenId: space.tokenId }, space, {
         upsert: true,
