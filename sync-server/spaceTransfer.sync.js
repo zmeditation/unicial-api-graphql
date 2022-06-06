@@ -95,7 +95,12 @@ mongoose
           space.estateId = "";
           space.owner = to;
         }
-        if (space.type !== TILE_TYPES.PLAZA) {
+        // roads, district, plaza should keep its type
+        if (
+          space.type !== TILE_TYPES.PLAZA &&
+          space.type !== TILE_TYPES.ROAD &&
+          space.type !== TILE_TYPES.DISTRICT
+        ) {
           space.type = TILE_TYPES.OWNED;
           space.top = false;
           space.left = false;
@@ -116,6 +121,16 @@ mongoose
             { useFindAndModify: false }
           );
         }
+        space.updatedAt = Math.floor(Date.now() / 1000);
+        await Map.updateOne({ tokenId: space.tokenId }, space, {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        });
+      } else if (
+        space.type === TILE_TYPES.PLAZA ||
+        space.type === TILE_TYPES.ROAD ||
+        space.type === TILE_TYPES.DISTRICT
+      ) {
         space.updatedAt = Math.floor(Date.now() / 1000);
         await Map.updateOne({ tokenId: space.tokenId }, space, {
           upsert: true,
