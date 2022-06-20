@@ -2,6 +2,7 @@ var express = require("express");
 var mapRouter = require("./map");
 var mapPngRouter = require("./mappng");
 var parcelRouter = require("./parcel");
+var parcelsMapRouter = require("./parcels");
 var estateRouter = require("./estate");
 var storeRouter = require("./store");
 var bidRouter = require("./bid");
@@ -28,6 +29,11 @@ app.use("/store/", storeRouter);
 // @desc     Get parcel related data
 // @access   Public
 app.use("/parcel/", parcelRouter);
+
+// @route    GET /api/v1/parcels
+// @desc     Get parcel image
+// @access   Public
+app.use("/parcels/", parcelsMapRouter);
 
 // @route    GET /api/v1/estate
 // @desc     Get estate related data
